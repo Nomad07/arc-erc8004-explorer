@@ -1,0 +1,365 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0d1b2f;
+  --bg-gradient: linear-gradient(180deg, #0d1b2f 0%, #0d1b2f 58%, #122d45 100%);
+  --surface: rgba(255, 255, 255, 0.07);
+  --surface-strong: rgba(255, 255, 255, 0.11);
+  --surface-muted: #1f2f44;
+  --ink: #f9faf3;
+  --ink-2: #e3ecf9;
+  --muted: #cbd5e1;
+  --subtle: #94a3b8;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(203, 219, 242, 0.55);
+  --accent: #acc6e9;
+  --accent-hover: #cbdbf2;
+  --success: #8dd89f;
+  --danger: #e86d7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100dvh;
+  background: var(--bg-gradient);
+  color: var(--ink);
+}
+
+.display {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', Menlo, monospace;
+}
+
+/* ── Arc Agent Explorer — responsive layout ─────────────────────────────── */
+
+/* Nav bar: allow content to wrap below ~480px */
+.aex-nav {
+  flex-wrap: wrap;
+  height: auto !important;
+  min-height: 50px;
+  row-gap: 8px;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Network selector buttons: shrink label text on very small screens */
+.aex-net-btn {
+  white-space: nowrap;
+}
+@media (max-width: 400px) {
+  .aex-net-btn {
+    padding: 5px 9px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* Search bar: stack input + button on narrow screens */
+.aex-search-row {
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .aex-search-row {
+    flex-direction: column;
+  }
+  .aex-search-row input {
+    width: 100%;
+  }
+  .aex-search-btn {
+    width: 100%;
+    height: 42px !important;
+  }
+}
+
+/* Search label: allow wrap */
+.aex-search-label {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Hero header row: stack avatar + text on narrow screens */
+.aex-hero-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+@media (max-width: 400px) {
+  .aex-hero-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Badge row: wrap badges */
+.aex-badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* Stats grid: 3-col on desktop, 2-col below 420px, single col below 320px */
+.aex-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 420px) {
+  .aex-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 300px) {
+  .aex-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Registries row: allow address chip to shrink / wrap on narrow screens */
+.aex-registry-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .aex-registry-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+/* Agent Details: label column — shrink on mobile */
+.aex-detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: 148px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+@media (max-width: 480px) {
+  .aex-detail-label {
+    min-width: 0;
+    width: 100%;
+    flex-shrink: 1;
+  }
+  .aex-detail-row {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+}
+
+/* Validation detail rows: allow stacking */
+.aex-val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .aex-val-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .aex-val-row-hash {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+}
+
+/* Reputation feedback record rows */
+.aex-rep-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+@media (max-width: 480px) {
+  .aex-rep-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Address chips: always break-all, never overflow */
+.aex-addr {
+  word-break: break-all;
+  max-width: 100%;
+}
+
+/* Card section: tighter horizontal padding on mobile */
+.aex-card-section {
+  padding: 18px 20px;
+}
+@media (max-width: 400px) {
+  .aex-card-section {
+    padding: 14px 14px;
+  }
+}
+
+/* Global: no horizontal overflow */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ── Tablet: 481px – 1024px ──────────────────────────────────────────────── */
+@media (min-width: 481px) and (max-width: 1024px) {
+
+  /* 1. Widen the content container to actually use the viewport */
+  .aex-content {
+    max-width: 900px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* 2. Single-column layout — hero, then registries+details, then content */
+  .aex-tablet-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Left and right columns flow as normal block children */
+  .aex-tablet-left,
+  .aex-tablet-right {
+    display: contents;
+  }
+
+  /* Full-width row below the two-column grid */
+  .aex-tablet-full {
+    margin-top: 14px;
+  }
+
+  /* 3. Nav: no wrapping — plenty of horizontal room at tablet */
+  .aex-nav {
+    flex-wrap: nowrap;
+    height: 50px !important;
+    min-height: 50px;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* 4. Stats: 3 balanced columns — wider container means each tile has room */
+  .aex-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  /* 5. Hero header: avatar + agent name stay in a row */
+  .aex-hero-header {
+    gap: 14px;
+  }
+
+  /* 6. Search row: input + button stay inline */
+  .aex-search-row {
+    flex-wrap: nowrap;
+  }
+  .aex-search-btn {
+    flex-shrink: 0;
+    min-width: 90px;
+  }
+
+  /* 7. Registry rows: label | address | link stay inline — room to breathe */
+  .aex-registry-row {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  /* 8. Agent Details: comfortable label width */
+  .aex-detail-label {
+    min-width: 130px;
+  }
+
+  /* 9. Value sides never overflow */
+  .aex-detail-row {
+    min-width: 0;
+  }
+  .aex-detail-row > *:last-child {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* 10. Validation rows: value clips cleanly */
+  .aex-val-row {
+    flex-wrap: nowrap;
+  }
+  .aex-val-row > *:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ── Mobile fallback for tablet grid containers (≤480px) ────────────────── */
+@media (max-width: 480px) {
+  .aex-tablet-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .aex-tablet-left,
+  .aex-tablet-right {
+    display: contents;
+  }
+  .aex-tablet-full {
+    margin-top: 0;
+  }
+}
+
+/* ── Desktop content width (>1024px) ────────────────────────────────────── */
+@media (min-width: 1025px) {
+  .aex-content {
+    max-width: 960px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+/* ── Desktop fallback for tablet grid containers (>1024px) ──────────────── */
+@media (min-width: 1025px) {
+  /* Single-column stack on desktop — same as before the grid was added */
+  .aex-tablet-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .aex-tablet-left,
+  .aex-tablet-right {
+    display: contents; /* children flow as if not wrapped */
+  }
+  .aex-tablet-full {
+    margin-top: 0;
+  }
+}
+
+/* ── All widths above mobile: prevent value overflow ────────────────────── */
+@media (min-width: 481px) {
+  .aex-detail-row {
+    min-width: 0;
+  }
+  .aex-addr {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}

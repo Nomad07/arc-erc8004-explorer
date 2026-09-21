@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "files": {
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/ERC1967Proxy.sol": {
+      "sha256": "d70ae5779f17b5a0b42eea535227f4004072ccc35b4d0b4ffe7c0ed5502a25c5",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/IdentityRegistryUpgradeable.sol": {
+      "sha256": "18c8ca8c88493b46e54d000c96eaf7470d1f9dbfe55493fd7fa923bae543ff75",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC5267.sol": {
+      "sha256": "f89772d2d4fafcbef8b73bb10ee9a3373edec2eedb2f1b302320915b351dc3d1",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/utils/ContextUpgradeable.sol": {
+      "sha256": "a08e16324da33a9d666dc07a22ae58031c242a3869f6808e55b4b82fc70cb209",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/HardhatMinimalUUPS.sol": {
+      "sha256": "9d3b152b88733e61f40ae2de775f7448001b73d9165f23ee8bbe5dd88cd042aa",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/MinimalUUPS.sol": {
+      "sha256": "6f03f625a4bf1c6e5fe045c79aa673402143eb91e6afc57e845929941fdf1209",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC1967.sol": {
+      "sha256": "c4e901318ab6d4963582c62c62ce988a34c68dbae71846b67decacde79e9a317",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/token/ERC721/IERC721Receiver.sol": {
+      "sha256": "eafee3ffdc7cb2fba4bf6bd16fb28f8e5b4679742e81c2ad42a1b1df5c179feb",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/ReputationRegistryUpgradeable.sol": {
+      "sha256": "9063eba192391c3e6959edcad452184f07a6c1b3975391e7c4d77dbf1eaabf09",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/token/ERC721/utils/ERC721Utils.sol": {
+      "sha256": "f2041b1685dcf0cf6b968d9b8454e5a46068b1df5ab0e82ba0b269fa2f3099a8",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/utils/introspection/ERC165Upgradeable.sol": {
+      "sha256": "d2105a1e3ba533399fb408105267329c2c134fcb18043a9c024d1b6e81982fc9",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/proxy/Proxy.sol": {
+      "sha256": "5f5081378d4bc82b814b0d64990b7f7b9c69697593b73a3341f4a269940ba540",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/Strings.sol": {
+      "sha256": "2db7d21151644c57f75ed3ab55e87f3cf7fbf587a65345650fd740e2cfd50be3",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/Initializable.sol": {
+      "sha256": "f527a063813c2bf60c153fb08e38539578935402894fcc36fac42324ca325d3b",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC4906.sol": {
+      "sha256": "2b14563481c355e6a84127f0ee528d3e3b80fcdd76ff840660784c2445fcc0ae",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/ValidationRegistryUpgradeable.sol": {
+      "sha256": "26b1ebb8718abfeba1f12d51201f2adcf6c02f5bde79902532bd2d8fc3657882",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC1271.sol": {
+      "sha256": "2d17bba201aa2f9c55e317315b872272a60361848dfceb6b1e77081265c79a27",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/Panic.sol": {
+      "sha256": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/access/OwnableUpgradeable.sol": {
+      "sha256": "9247b9ad7939d23990dbdc9274917c3762ffb37e5137ef7bbfcc2e2fba1b8dd2",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/cryptography/MessageHashUtils.sol": {
+      "sha256": "936a89f512d5da84b0896b66d2398f2bea9eefdf2afa788af5265fcd74302693",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/math/SignedMath.sol": {
+      "sha256": "1ed50b1056af886752f0fb48a0165d381e69bb4a4b18b893b066dc144a7e08d7",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC165.sol": {
+      "sha256": "dfb3f56fa928a7c6cae41a7ce2c86b9210fa18d33fa26389099d66a0fa790368",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/cryptography/ECDSA.sol": {
+      "sha256": "0964ddd02f4a7a8cf9ba130e3aeead588ca3d425d5bc13cc4221358c69108ed0",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/utils/cryptography/EIP712Upgradeable.sol": {
+      "sha256": "91c98a39169b1ad2a4babb09e7a7c89d895956739d3f960701911cbc8b542050",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/Errors.sol": {
+      "sha256": "0704b9d6c032cca8512a3bc3f30f49f86f1f03102d2896a3d23e794b82efea66",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/introspection/IERC165.sol": {
+      "sha256": "9055c2994b37dea1a41b7b7926dcb510f05dbe2540b0aafc5fbee9558fffd0ca",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/Address.sol": {
+      "sha256": "f1a9255dbc40cf9ae7c786abed3b022691a9d24bca0c7f05dc60e63421d405ab",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/draft-IERC1822.sol": {
+      "sha256": "73653312bc2eda0ec231553a5295242eaef2d4f46a023532d45fe76cbd0f565f",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol": {
+      "sha256": "205704dcb4f17cb667aecbb8a0a66bdd175012d342e1c3abd469b67449b8e7f3",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/SingletonFactory.sol": {
+      "sha256": "3f046b26a3f00eab8a963a9bb10b7f5141ec5ee87aaabe9b0afc98c46c8c2647",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/proxy/ERC1967/ERC1967Utils.sol": {
+      "sha256": "58c5b19893bf3d7f9e1aa0edc5b908b915eb7af4381800deb425a6e5331f4432",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/project/contracts/MinimalUUPSMainnet.sol": {
+      "sha256": "6bf43a09ca339818d0057827e51a0ba74879d9e4abfecd6d2f3c0893d4f82d71",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/token/ERC721/IERC721.sol": {
+      "sha256": "ff0eb9902bf0ac099205615fac90eacf34fae637571b05aab3ea35dea53d5f17",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/proxy/beacon/IBeacon.sol": {
+      "sha256": "c1c9726bbb0ec4c540c7c98059dcded69a8586b46c168036672381033ee76239",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/token/ERC721/ERC721Upgradeable.sol": {
+      "sha256": "2589016aed958e644f7235481c1639a8657640a746c33cbd9f42a5cc28519604",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/math/Math.sol": {
+      "sha256": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/StorageSlot.sol": {
+      "sha256": "75704538dcb223239280c6726d9a31cf769a7816718517c997fc7d63bdb70778",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/utils/math/SafeCast.sol": {
+      "sha256": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/IERC721.sol": {
+      "sha256": "4e4412e3eb28d5d2055e7b0e8153a2ab4d143f94e125a03a1b3d655ea7ed0002",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/UUPSUpgradeable.sol": {
+      "sha256": "2d07bcf9728190a5c807cf68defc3f3c52aa098d04770d44af37f30abade38d5",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/token/ERC721/extensions/IERC721Metadata.sol": {
+      "sha256": "33223782ea652dca413702ce92f9f59d91d758a035065b24bbedb7dc60c63a78",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/proxy/ERC1967/ERC1967Proxy.sol": {
+      "sha256": "a06fe97082355529c1da9076ea6c4518875ca9fdb1a4fa1e194c35cff21b29a1",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    },
+    "/home/user/app/contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts@5.4.0/interfaces/draft-IERC6093.sol": {
+      "sha256": "df936240c9a5d342582cbda70dd773b1c1d0e0dda3042b1c17b902ef0c36827b",
+      "address": "0x8004cb1bf31daf7788923b405b754f57aceb4272",
+      "chain": "Arc_Testnet",
+      "fetchedAt": "2026-09-20T22:49:47.634Z"
+    }
+  }
+}
