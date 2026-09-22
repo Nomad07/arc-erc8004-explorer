@@ -1,6 +1,6 @@
 # Arc ERC-8004 Explorer
 
-A lightweight explorer for discovering and inspecting ERC-8004 agents on Arc.
+An explorer for discovering and inspecting ERC-8004 agents on Arc.
 
 ## Overview
 
@@ -10,17 +10,17 @@ Enter an Agent ID and the explorer resolves the agent on the selected network, t
 
 ## Features
 
-* 🔎 Search ERC-8004 agents by Agent ID
-* 🌐 Arc Mainnet and Arc Testnet support
-* 🆔 ERC-8004 Identity Registry data
-* 👤 Agent owner and agent wallet
-* 📄 Agent metadata URI
-* ⭐ Reputation feedback and aggregate score
-* ✅ Validation requests and responses
-* 🔗 Direct links to Arc Explorer
-* 📋 Copy agent and registry addresses
-* 📱 Responsive desktop, tablet, and mobile layouts
-* ⚡ Live onchain data
+* Search ERC-8004 agents by Agent ID
+* Arc Mainnet and Arc Testnet support
+* ERC-8004 Identity Registry data
+* Agent owner and agent wallet
+* Agent metadata URI
+* Reputation feedback and aggregate score
+* Validation requests and responses
+* Direct links to Arc Explorer
+* Copy agent and registry addresses
+* Responsive desktop, tablet, and mobile layouts
+* Onchain agent data
 
 ## Supported Networks
 
@@ -41,7 +41,7 @@ Enter an Agent ID and the explorer resolves the agent on the selected network, t
 
 1. Select **Arc Mainnet** or **Arc Testnet**.
 2. Enter an ERC-8004 Agent ID.
-3. The explorer reads the agent directly from the Identity Registry.
+3. The explorer reads the agent from the selected Identity Registry.
 4. Identity, reputation, and validation data are loaded for that agent.
 5. Use the explorer links to inspect the underlying onchain records.
 
@@ -82,14 +82,13 @@ bun run check
 ```text
 src/
 ├── components/
-├── ...
 ├── App.tsx
 └── main.tsx
 ```
 
 ## Status
 
-🚀 **Live development project**
+**Live development project**
 
 The explorer currently supports ERC-8004 agent inspection on both Arc Mainnet and Arc Testnet.
 
