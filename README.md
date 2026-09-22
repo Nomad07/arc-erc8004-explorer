@@ -2,11 +2,15 @@
 
 An explorer for discovering and inspecting ERC-8004 agents on Arc.
 
+**Live Explorer:** https://arc-erc8004-explorer.vercel.app/
+
 ## Overview
 
 **Arc ERC-8004 Explorer** lets users search for and inspect ERC-8004 agents directly on Arc Mainnet and Arc Testnet.
 
 Enter an Agent ID and the explorer resolves the agent on the selected network, then displays its identity, ownership, wallet, metadata, reputation, and validation data.
+
+No wallet connection is required.
 
 ## Features
 
@@ -21,6 +25,7 @@ Enter an Agent ID and the explorer resolves the agent on the selected network, t
 * Copy agent and registry addresses
 * Responsive desktop, tablet, and mobile layouts
 * Onchain agent data
+* Not-found handling for invalid Agent IDs
 
 ## Supported Networks
 
@@ -29,6 +34,7 @@ Enter an Agent ID and the explorer resolves the agent on the selected network, t
 * Chain ID: `5042`
 * Identity Registry: `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
 * Reputation Registry: `0x8004BAa17C55a88189AE136b182e5fdA19dE9b63`
+* Validation Registry: Not deployed
 
 ### Arc Testnet
 
@@ -45,7 +51,7 @@ Enter an Agent ID and the explorer resolves the agent on the selected network, t
 4. Identity, reputation, and validation data are loaded for that agent.
 5. Use the explorer links to inspect the underlying onchain records.
 
-The explorer does not require users to connect a wallet to inspect public agent data.
+The explorer reads public onchain data and does not require users to connect a wallet.
 
 ## Tech Stack
 
@@ -86,9 +92,15 @@ src/
 └── main.tsx
 ```
 
+## Deployment
+
+The production application is deployed on Vercel.
+
+**Live:** https://arc-erc8004-explorer.vercel.app/
+
 ## Status
 
-**Live development project**
+**Live**
 
 The explorer currently supports ERC-8004 agent inspection on both Arc Mainnet and Arc Testnet.
 
