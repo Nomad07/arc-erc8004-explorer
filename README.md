@@ -2,7 +2,7 @@
 
 An explorer for discovering and inspecting ERC-8004 agents on Arc.
 
-**Live Explorer:** https://arc-erc8004-explorer.vercel.app/
+**Live Explorer:**  https://arcagents.app/
 
 ## Overview
 
