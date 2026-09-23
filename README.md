@@ -2,7 +2,7 @@
 
 An explorer for discovering and inspecting ERC-8004 agents on Arc.
 
-**Live Explorer:**  https://arcagents.app/
+**Live Explorer:** https://arcagents.app/
 
 ## Overview
 
@@ -94,9 +94,9 @@ src/
 
 ## Deployment
 
-The production application is deployed on Vercel.
+The production application is deployed and available at:
 
-**Live:** https://arc-erc8004-explorer.vercel.app/
+**https://arcagents.app/**
 
 ## Status
 
