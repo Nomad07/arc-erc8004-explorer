@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.05"/>
+    </radialGradient>
+    <radialGradient id="arc" cx="38%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </radialGradient>
+  </defs>
+  <!-- Dark background -->
+  <rect width="32" height="32" rx="7" fill="#0d1117"/>
+  <!-- Outer ring -->
+  <circle cx="16" cy="16" r="13" fill="url(#bg)" stroke="#60a5fa" stroke-width="1" stroke-opacity="0.45"/>
+  <!-- Inner Arc glyph: stylised "A" arc -->
+  <path d="M16 6 L22 22 L19 22 L16 14 L13 22 L10 22 Z" fill="url(#arc)" opacity="0.9"/>
+  <line x1="12" y1="18" x2="20" y2="18" stroke="#93c5fd" stroke-width="1.5" stroke-opacity="0.7"/>
+</svg>
