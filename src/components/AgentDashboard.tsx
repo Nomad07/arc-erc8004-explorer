@@ -1136,6 +1136,25 @@ export function AgentDashboard() {
     clearDeepLink()
   }
 
+  // ── Home navigation ───────────────────────────────────────────────────────
+  const handleHome = () => {
+    setNetworkIndex(0)
+    setReputationCount(undefined)
+    setValidationCount(undefined)
+    setSearchInput('')
+    setSearchedId(null)
+    setSearchError(null)
+    clearDeepLink()
+  }
+
+  // ── Scroll-to-top visibility ──────────────────────────────────────────────
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 300)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   // ── Example chip handler ──────────────────────────────────────────────────
   const handleExampleSelect = (chip: ExampleChip) => {
     setNetworkIndex(chip.networkIndex)
@@ -1198,11 +1217,21 @@ export function AgentDashboard() {
       }}>
         {/* Left: wordmark */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-            background: `radial-gradient(circle at 38% 38%, ${accent.color}44, ${accent.color}08)`,
-            border: `1px solid ${accent.border}`,
-          }} />
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={handleHome}
+            onKeyDown={e => e.key === 'Enter' && handleHome()}
+            title="Home"
+            style={{
+              width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+              background: `radial-gradient(circle at 38% 38%, ${accent.color}44, ${accent.color}08)`,
+              border: `1px solid ${accent.border}`,
+              cursor: 'pointer', transition: 'opacity 0.12s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <span style={{ fontFamily: T.display, fontSize: 13, fontWeight: 700, color: T.ink, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               Arc ERC-8004 Explorer
@@ -1474,24 +1503,51 @@ export function AgentDashboard() {
           <span style={{ margin: '0 7px', opacity: 0.3 }}>|</span>
           Refreshed {new Date(lastRefresh).toLocaleTimeString()}
         </div>
+
+        {/* ── FOOTER BAR ────────────────────────────────────────────────── */}
+        <div className="aex-footer-bar">
+          <span className="aex-footer-egg">Made with <span className="aex-footer-heart">♥</span> on Mars</span>
+          <span className="aex-footer-links">
+            <a
+              href="https://github.com/Nomad07/arc-erc8004-explorer"
+              target="_blank" rel="noopener noreferrer"
+              className="aex-footer-link"
+            >GitHub</a>
+            <a
+              href="https://x.com/nomadonmars"
+              target="_blank" rel="noopener noreferrer"
+              className="aex-footer-link"
+            >X / Twitter</a>
+          </span>
+        </div>
       </div>
 
-      {/* ── FOOTER BAR ──────────────────────────────────────────────────── */}
-      <div className="aex-footer-bar">
-        <span className="aex-footer-egg">Made with ♥ on Mars</span>
-        <span className="aex-footer-links">
-          <a
-            href="https://github.com/Nomad07/arc-erc8004-explorer"
-            target="_blank" rel="noopener noreferrer"
-            className="aex-footer-link"
-          >GitHub</a>
-          <a
-            href="https://x.com/nomadonmars"
-            target="_blank" rel="noopener noreferrer"
-            className="aex-footer-link"
-          >X / Twitter</a>
-        </span>
-      </div>
+      {/* ── SCROLL TO TOP ───────────────────────────────────────────────── */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          title="Back to top"
+          style={{
+            position: 'fixed', bottom: 56, right: 18, zIndex: 50,
+            width: 34, height: 34, borderRadius: 9, cursor: 'pointer',
+            background: T.bgInner, border: `1px solid ${T.border}`,
+            color: T.ink3, fontSize: 16, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+            transition: 'all 0.12s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = accent.dim
+            e.currentTarget.style.borderColor = accent.border
+            e.currentTarget.style.color = accent.color
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = T.bgInner
+            e.currentTarget.style.borderColor = T.border
+            e.currentTarget.style.color = T.ink3
+          }}
+        >↑</button>
+      )}
     </div>
   )
 }
