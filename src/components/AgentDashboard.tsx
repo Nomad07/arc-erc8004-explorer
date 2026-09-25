@@ -908,12 +908,93 @@ function ValidationSection({
   )
 }
 
+// ─── URL deep-link helpers ────────────────────────────────────────────────────
+
+/** Parse /agent/{id}?network=mainnet|testnet from the current URL. */
+function parseDeepLink(): { agentId: bigint; networkKey: 'mainnet' | 'testnet' } | null {
+  try {
+    const m = window.location.pathname.match(/^\/agent\/(\d+)$/)
+    if (!m) return null
+    const agentId = BigInt(m[1])
+    const raw = new URLSearchParams(window.location.search).get('network') ?? ''
+    const networkKey: 'mainnet' | 'testnet' = raw.toLowerCase() === 'testnet' ? 'testnet' : 'mainnet'
+    return { agentId, networkKey }
+  } catch {
+    return null
+  }
+}
+
+/** Push /agent/{id}?network=mainnet|testnet to the browser history. */
+function pushDeepLink(agentId: bigint, networkKey: 'mainnet' | 'testnet') {
+  const url = `/agent/${agentId}?network=${networkKey}`
+  window.history.pushState({}, '', url)
+}
+
+/** Clear the URL back to / without a page reload. */
+function clearDeepLink() {
+  window.history.replaceState({}, '', '/')
+}
+
+// ─── Example chips ────────────────────────────────────────────────────────────
+
+interface ExampleChip { label: string; agentId: bigint; networkIndex: number }
+
+const EXAMPLE_CHIPS: ExampleChip[] = [
+  { label: '#8 · Mainnet',  agentId: 8n,  networkIndex: 0 },
+  { label: '#98 · Testnet', agentId: 98n, networkIndex: 1 },
+]
+
+function ExampleChips({
+  onSelect,
+  accent,
+}: {
+  onSelect: (chip: ExampleChip) => void
+  accent: ReturnType<typeof getAccent>
+}) {
+  return (
+    <div style={{
+      display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, marginBottom: 4,
+    }}>
+      <span style={{
+        fontSize: 10, fontWeight: 600, color: T.ink3, letterSpacing: '0.05em',
+        textTransform: 'uppercase', alignSelf: 'center', fontFamily: T.body, flexShrink: 0,
+      }}>Try:</span>
+      {EXAMPLE_CHIPS.map(chip => (
+        <button
+          key={chip.label}
+          onClick={() => onSelect(chip)}
+          style={{
+            padding: '3px 10px', borderRadius: 20,
+            background: T.bgWell, border: `1px solid ${T.border}`,
+            color: T.ink2, fontFamily: T.mono, fontSize: 11,
+            cursor: 'pointer', transition: 'all 0.12s',
+            letterSpacing: '0.01em', whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = accent.border
+            e.currentTarget.style.color = accent.color
+            e.currentTarget.style.background = accent.dim
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = T.border
+            e.currentTarget.style.color = T.ink2
+            e.currentTarget.style.background = T.bgWell
+          }}
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ─── Search bar ───────────────────────────────────────────────────────────────
 
 interface SearchBarProps {
   value: string
   onChange: (v: string) => void
   onSearch: () => void
+  onExampleSelect: (chip: ExampleChip) => void
   pending: boolean
   error: string | null
   notFound: boolean
@@ -922,7 +1003,7 @@ interface SearchBarProps {
   accent: ReturnType<typeof getAccent>
 }
 
-function SearchBar({ value, onChange, onSearch, pending, error, notFound, searchedId, networkLabel, accent }: SearchBarProps) {
+function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error, notFound, searchedId, networkLabel, accent }: SearchBarProps) {
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') onSearch()
   }
@@ -948,7 +1029,7 @@ function SearchBar({ value, onChange, onSearch, pending, error, notFound, search
         <input
           type="text"
           inputMode="numeric"
-          placeholder={`Enter Agent ID, e.g. ${networkLabel.includes('Mainnet') ? '15' : '876991'}`}
+          placeholder={`Enter Agent ID, e.g. ${networkLabel.includes('Mainnet') ? '14' : '876978'}`}
           value={value}
           onChange={e => { onChange(e.target.value); }}
           onKeyDown={handleKey}
@@ -994,6 +1075,9 @@ function SearchBar({ value, onChange, onSearch, pending, error, notFound, search
           {msg.text}
         </div>
       )}
+
+      {/* Example chips */}
+      <ExampleChips onSelect={onExampleSelect} accent={accent} />
     </div>
   )
 }
@@ -1001,15 +1085,19 @@ function SearchBar({ value, onChange, onSearch, pending, error, notFound, search
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export function AgentDashboard() {
-  const [networkIndex, setNetworkIndex] = useState(0)
+  // ── Deep-link: parse URL on first mount ───────────────────────────────────
+  const initialLink = parseDeepLink()
+  const initialNetworkIndex = initialLink?.networkKey === 'testnet' ? 1 : 0
+
+  const [networkIndex, setNetworkIndex] = useState(initialNetworkIndex)
   const cfg      = NETWORK_CONFIGS[networkIndex]
   const chain    = requireChain(cfg.chainId)
   const isMainnet = !chain.isTestnet
   const accent   = getAccent(isMainnet)
 
   // ── Search state ──────────────────────────────────────────────────────────
-  const [searchInput,  setSearchInput]  = useState('')
-  const [searchedId,   setSearchedId]   = useState<bigint | null>(null)
+  const [searchInput,  setSearchInput]  = useState(initialLink ? initialLink.agentId.toString() : '')
+  const [searchedId,   setSearchedId]   = useState<bigint | null>(initialLink?.agentId ?? null)
   const [searchError,  setSearchError]  = useState<string | null>(null)
 
   // The agent currently being viewed: searched ID takes priority over the
@@ -1033,7 +1121,10 @@ export function AgentDashboard() {
     setSearchedId(parsed)
     setReputationCount(undefined)
     setValidationCount(undefined)
-  }, [searchInput, setReputationCount, setValidationCount])
+    // Sync URL
+    const nk: 'mainnet' | 'testnet' = NETWORK_CONFIGS[networkIndex].chainId === 5042 ? 'mainnet' : 'testnet'
+    pushDeepLink(parsed, nk)
+  }, [searchInput, networkIndex, setReputationCount, setValidationCount])
 
   const handleNetworkChange = (i: number) => {
     setNetworkIndex(i)
@@ -1042,6 +1133,19 @@ export function AgentDashboard() {
     setSearchInput('')
     setSearchedId(null)
     setSearchError(null)
+    clearDeepLink()
+  }
+
+  // ── Example chip handler ──────────────────────────────────────────────────
+  const handleExampleSelect = (chip: ExampleChip) => {
+    setNetworkIndex(chip.networkIndex)
+    setSearchInput(chip.agentId.toString())
+    setSearchedId(chip.agentId)
+    setSearchError(null)
+    setReputationCount(undefined)
+    setValidationCount(undefined)
+    const nk: 'mainnet' | 'testnet' = NETWORK_CONFIGS[chip.networkIndex].chainId === 5042 ? 'mainnet' : 'testnet'
+    pushDeepLink(chip.agentId, nk)
   }
 
   const { data: identityData, isLoading: identityLoading, refetch } = useReadContracts({
@@ -1146,6 +1250,7 @@ export function AgentDashboard() {
           value={searchInput}
           onChange={v => { setSearchInput(v); setSearchError(null) }}
           onSearch={handleSearch}
+          onExampleSelect={handleExampleSelect}
           pending={searchPending || identityLoading}
           error={searchError}
           notFound={notFound}
@@ -1369,6 +1474,23 @@ export function AgentDashboard() {
           <span style={{ margin: '0 7px', opacity: 0.3 }}>|</span>
           Refreshed {new Date(lastRefresh).toLocaleTimeString()}
         </div>
+      </div>
+
+      {/* ── FOOTER BAR ──────────────────────────────────────────────────── */}
+      <div className="aex-footer-bar">
+        <span className="aex-footer-egg">Made with ♥ on Mars</span>
+        <span className="aex-footer-links">
+          <a
+            href="https://github.com/Nomad07/arc-erc8004-explorer"
+            target="_blank" rel="noopener noreferrer"
+            className="aex-footer-link"
+          >GitHub</a>
+          <a
+            href="https://x.com/nomadonmars"
+            target="_blank" rel="noopener noreferrer"
+            className="aex-footer-link"
+          >X / Twitter</a>
+        </span>
       </div>
     </div>
   )

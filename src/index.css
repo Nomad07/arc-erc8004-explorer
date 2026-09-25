@@ -221,6 +221,40 @@ html, body, #root {
   overflow-x: hidden;
 }
 
+/* ── Footer bar ─────────────────────────────────────────────────────────── */
+.aex-footer-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 16px;
+  pointer-events: none;
+  user-select: none;
+}
+.aex-footer-egg {
+  font-size: 10px;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.03em;
+}
+.aex-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  pointer-events: auto;
+}
+.aex-footer-link {
+  font-size: 10px;
+  color: rgba(255,255,255,0.28);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.15s;
+}
+.aex-footer-link:hover { color: rgba(255,255,255,0.65); }
+
 /* ── Tablet: 481px – 1024px ──────────────────────────────────────────────── */
 @media (min-width: 481px) and (max-width: 1024px) {
 
