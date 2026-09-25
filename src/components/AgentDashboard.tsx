@@ -1377,7 +1377,7 @@ export function AgentDashboard() {
                     label="Validations"
                     value={
                       cfg.validationRegistry === null
-                        ? <span style={{ fontSize: 12, color: T.ink3, letterSpacing: 0 }}>N/A</span>
+                        ? <span style={{ fontSize: 10, color: T.ink3, letterSpacing: 0, lineHeight: 1.35 }}>ℹ Validation registry is not deployed on Arc Mainnet</span>
                         : validationCount !== undefined
                           ? validationCount
                           : <Skeleton w="28px" h={18} />
@@ -1479,7 +1479,7 @@ export function AgentDashboard() {
             <Card key={`val-none-${cfg.chainId}`}>
               <CardSection>
                 <SectionLabel>Validation</SectionLabel>
-                <Well>Validation registry is not deployed on Arc Mainnet.</Well>
+                <Well>ℹ Validation registry is not deployed on Arc Mainnet.</Well>
               </CardSection>
             </Card>
           )}
