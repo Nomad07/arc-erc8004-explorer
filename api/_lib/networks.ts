@@ -44,6 +44,7 @@ export const identityAbi = [
   { type: 'function', name: 'ownerOf',        stateMutability: 'view', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ name: '', type: 'address' }] },
   { type: 'function', name: 'getAgentWallet',  stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ name: '', type: 'address' }] },
   { type: 'function', name: 'tokenURI',        stateMutability: 'view', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ name: '', type: 'string'  }] },
+  { type: 'error',    name: 'ERC721NonexistentToken', inputs: [{ name: 'tokenId', type: 'uint256' }] },
 ] as const
 
 export const reputationAbi = [

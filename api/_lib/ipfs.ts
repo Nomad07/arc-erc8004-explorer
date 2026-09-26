@@ -1,12 +1,12 @@
-/** IPFS gateway fetch with timeout and fallback. Server-side version (3s timeout). */
+/** IPFS gateway fetch with timeout and fallback. Server-side version (8s timeout). */
 
 const GATEWAYS = [
+  'https://w3s.link/ipfs/',
   'https://gateway.pinata.cloud/ipfs/',
-  'https://cloudflare-ipfs.com/ipfs/',
   'https://ipfs.io/ipfs/',
 ]
 
-const TIMEOUT_MS = 3000
+const TIMEOUT_MS = 8000
 
 export function ipfsToHttp(uri: string, gatewayIndex = 0): string {
   if (uri.startsWith('ipfs://')) {

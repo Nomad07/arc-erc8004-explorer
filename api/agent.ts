@@ -96,8 +96,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     metadataUri = uriResult    as string
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    // ERC721 reverts with "ERC721NonexistentToken" or similar for nonexistent IDs
-    if (msg.includes('NonexistentToken') || msg.includes('invalid token') || msg.includes('does not exist') || msg.includes('ERC721')) {
+    // Check decoded viem error name first (requires ERC721NonexistentToken in ABI),
+    // then fall back to message substrings for unexpected revert formats.
+    const isNotFound =
+      (err as { cause?: { data?: { errorName?: string } } })?.cause?.data?.errorName === 'ERC721NonexistentToken'
+      || msg.includes('NonexistentToken')
+      || msg.includes('invalid token')
+      || msg.includes('does not exist')
+      || msg.includes('ERC721')
+    if (isNotFound) {
       return json(res, 404, {
         error:   'not_found',
         message: `Agent #${agentId} not found on ${cfg.label}`,
