@@ -7,7 +7,6 @@
  * Events are sent to the parent frame via postMessage.
  *
  * Imported as a side-effect before any app code runs.
- * Built with Arc Studio — https://studio.arc.io
  */
 
 // ---------------------------------------------------------------------------

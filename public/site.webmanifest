@@ -1,7 +1,7 @@
 {
   "name": "Arc ERC-8004 Explorer",
   "short_name": "Arc ERC-8004 Explorer",
-  "description": "Find and inspect ERC-8004 agents on Arc",
+  "description": "Find and inspect ERC-8004 agents on Arc Mainnet and Arc Testnet. Search agent IDs, owners, wallets, metadata, reputation, and validation data.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1117",

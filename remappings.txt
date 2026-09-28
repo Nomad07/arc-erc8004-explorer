@@ -1,2 +1,3 @@
 forge-std/=lib/forge-std/src/
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@openzeppelin/contracts-upgradeable/=contracts/imported/0x8004cb1bf31daf7788923b405b754f57aceb4272/npm/@openzeppelin/contracts-upgradeable@5.4.0/

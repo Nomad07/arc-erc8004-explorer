@@ -13,7 +13,6 @@
  *
  * Imported as a side-effect before any app code runs. The original console
  * behaviour is always preserved.
- * Built with Arc Studio — https://studio.arc.io
  */
 
 type ConsoleLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';

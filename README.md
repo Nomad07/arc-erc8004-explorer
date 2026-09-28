@@ -53,6 +53,50 @@ No wallet connection is required.
 
 The explorer reads public onchain data and does not require users to connect a wallet.
 
+## API
+
+The Explorer exposes a public JSON API for programmatic and AI agent access.
+
+### `GET /api/agent` — free
+
+Returns ERC-8004 agent identity, metadata, reputation, and validation data.
+
+```
+GET https://arcagents.app/api/agent?network=mainnet&agentId=15
+GET https://arcagents.app/api/agent?network=testnet&agentId=98
+```
+
+No authentication. No wallet. CDN-cached 30 seconds.
+
+### `GET /api/agent/paid` — 0.01 USDC (x402)
+
+Same data as the free endpoint, gated by a [Circle Gateway](https://developers.circle.com/gateway) x402 micropayment of **0.01 USDC** per request. Intended for AI agents and automated workflows.
+
+- ERC-8004 data is always resolved from **Arc Mainnet** (`network=mainnet`)
+- Payment can be made on **either** of the following networks (payer's choice):
+
+| Payment network | CAIP-2        | USDC address                                   |
+|-----------------|---------------|------------------------------------------------|
+| Arc Mainnet     | `eip155:5042` | `0x3600000000000000000000000000000000000000`   |
+| Base Mainnet    | `eip155:8453` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`  |
+
+Payment flow (x402 Version 2):
+1. `GET /api/agent/paid?network=mainnet&agentId=15` → **402** with `PAYMENT-REQUIRED` header
+2. Decode `PAYMENT-REQUIRED` (base64 JSON) — `accepts[]` lists both payment networks
+3. Choose one network, sign a GatewayWalletBatched EIP-3009 authorization for `10000` USDC units
+4. Base64-encode the signed payload → `X-PAYMENT` header
+5. Resend `GET` with `X-PAYMENT` → **200** `AgentResponse` on success
+
+### `GET /api/openapi.json`
+
+Full OpenAPI 3.1 specification for the API.
+
+```
+GET https://arcagents.app/api/openapi.json
+```
+
+---
+
 ## Tech Stack
 
 * React
@@ -62,6 +106,7 @@ The explorer reads public onchain data and does not require users to connect a w
 * viem
 * CSS
 * ERC-8004
+* Circle Gateway / x402
 
 ## Local Development
 

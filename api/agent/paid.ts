@@ -2,7 +2,12 @@
  * GET /api/agent/paid?network=mainnet&agentId=<uint>
  *
  * Paid ERC-8004 agent resolver — 0.01 USDC per successful request.
- * Payment: Circle Gateway Nanopayments, x402 Version 2, Arc Mainnet (eip155:5042).
+ * Payment: Circle Gateway Nanopayments, x402 Version 2.
+ * Accepted payment networks: Arc Mainnet (eip155:5042) or Base Mainnet (eip155:8453).
+ *
+ * ERC-8004 data is ALWAYS resolved from Arc Mainnet regardless of which payment
+ * network the caller uses. Base Mainnet is a payment network only — it has no
+ * ERC-8004 registries and is never used as a data source.
  *
  * Strictly read-only with respect to ERC-8004 registries.
  * No private key. No custodial wallet. No write operations.
@@ -16,15 +21,29 @@ import { BatchFacilitatorClient } from '@circle-fin/x402-batching/server'
 import { resolveAgent } from '../_lib/resolve.js'
 import type { ErrorResponse } from '../_lib/types.js'
 
-// ── Payment constants (Arc Mainnet, USDC, 0.01 USDC = 10000 units) ───────────
+// ── Payment constants ─────────────────────────────────────────────────────────
 // arc-studio-allow-onchain-literal
-const PAYMENT_NETWORK       = 'eip155:5042'
-const USDC_ADDRESS          = '0x3600000000000000000000000000000000000000' // Arc Mainnet USDC
-const PAYMENT_AMOUNT        = '10000'                                       // 0.01 USDC (6 decimals)
-const GATEWAY_CONTRACT      = '0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE' // GatewayWallet on all EVM mainnets
+const PAYMENT_AMOUNT        = '10000'                                        // 0.01 USDC (6 decimals)
+const GATEWAY_CONTRACT      = '0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE'  // GatewayWallet on all EVM mainnets
 const RESOURCE_URL          = 'https://www.arcagents.app/api/agent/paid'
 const RESOURCE_DESCRIPTION  = 'Resolve an ERC-8004 agent identity on Arc. Returns identity, metadata, reputation, and validation data.'
 const FACILITATOR_URL       = 'https://gateway-api.circle.com'
+
+// Supported payment networks — verified live against Circle Gateway getSupported().
+// ERC-8004 data always resolves from Arc Mainnet; these are payment-only networks.
+// arc-studio-allow-onchain-literal
+const PAYMENT_NETWORKS = {
+  arc: {
+    caip2:   'eip155:5042',
+    usdc:    '0x3600000000000000000000000000000000000000', // Arc Mainnet USDC
+  },
+  base: {
+    caip2:   'eip155:8453',
+    usdc:    '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base Mainnet USDC
+  },
+} as const
+
+const SUPPORTED_CAIP2 = new Set(Object.values(PAYMENT_NETWORKS).map(n => n.caip2))
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const CORS_HEADERS = {
@@ -45,20 +64,33 @@ function json(res: VercelResponse, status: number, body: unknown) {
   return res.status(status).json(body)
 }
 
-function paymentRequirements(sellerAddress: string) {
+/** Build a single payment requirements object for the given payment network. */
+function paymentRequirementsFor(
+  caip2: string,
+  usdcAddress: string,
+  sellerAddress: string,
+) {
   return {
     scheme:            'exact',
-    network:           PAYMENT_NETWORK,
-    asset:             USDC_ADDRESS,
+    network:           caip2,
+    asset:             usdcAddress,
     amount:            PAYMENT_AMOUNT,
     payTo:             sellerAddress,
     maxTimeoutSeconds: 604900,
     extra: {
-      name:               'GatewayWalletBatched',
-      version:            '1',
-      verifyingContract:  GATEWAY_CONTRACT,
+      name:              'GatewayWalletBatched',
+      version:           '1',
+      verifyingContract: GATEWAY_CONTRACT,
     },
   }
+}
+
+/** Build the full list of accepted payment requirements (one entry per supported network). */
+function allPaymentRequirements(sellerAddress: string) {
+  return [
+    paymentRequirementsFor(PAYMENT_NETWORKS.arc.caip2,  PAYMENT_NETWORKS.arc.usdc,  sellerAddress),
+    paymentRequirementsFor(PAYMENT_NETWORKS.base.caip2, PAYMENT_NETWORKS.base.usdc, sellerAddress),
+  ]
 }
 
 function require402(res: VercelResponse, sellerAddress: string, errorBody?: ErrorResponse) {
@@ -69,7 +101,7 @@ function require402(res: VercelResponse, sellerAddress: string, errorBody?: Erro
       description: RESOURCE_DESCRIPTION,
       mimeType:    'application/json',
     },
-    accepts: [paymentRequirements(sellerAddress)],
+    accepts: allPaymentRequirements(sellerAddress),
   }
   setCors(res)
   res.setHeader('PAYMENT-REQUIRED', Buffer.from(JSON.stringify(paymentRequired)).toString('base64'))
@@ -107,18 +139,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   }
 
-  // Paid endpoint is Mainnet-only
+  // Paid endpoint resolves ERC-8004 data from Arc Mainnet only.
+  // 'testnet' and any non-mainnet ERC-8004 network are not supported.
   if (networkParam === 'testnet') {
     return json(res, 400, {
       error:   'bad_request',
-      message: 'The paid endpoint only supports Arc Mainnet (network=mainnet). Use /api/agent for free Testnet lookups.',
+      message: 'The paid endpoint only supports Arc Mainnet ERC-8004 data (network=mainnet). Use /api/agent for free Testnet lookups.',
     })
   }
 
   if (networkParam !== 'mainnet') {
     return json(res, 400, {
       error:   'bad_request',
-      message: "network must be 'mainnet' for the paid endpoint",
+      message: "network must be 'mainnet' for the paid endpoint (ERC-8004 data network is Arc Mainnet)",
     })
   }
 
@@ -139,11 +172,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const xPayment = req.headers['x-payment'] as string | undefined
 
   if (!xPayment) {
-    // No payment header — return 402 with requirements
+    // No payment header — return 402 with requirements for all supported payment networks
     return require402(res, sellerAddress)
   }
 
-  // Parse and settle payment via Circle Gateway facilitator
+  // Parse payment payload and determine which payment network the caller used
   let paymentPayload: Record<string, unknown>
   try {
     const decoded = Buffer.from(xPayment, 'base64').toString('utf8')
@@ -155,8 +188,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   }
 
+  // Identify the payment network from the payload so we can settle against
+  // the matching requirements. The x402 payload carries the network as a
+  // CAIP-2 string at the top level.
+  const paymentCaip2 = (paymentPayload.network ?? paymentPayload.x402Network) as string | undefined
+  if (!paymentCaip2 || !SUPPORTED_CAIP2.has(paymentCaip2)) {
+    return require402(res, sellerAddress, {
+      error:   'payment_invalid',
+      message: `Unsupported payment network: ${String(paymentCaip2 ?? 'unknown')}. Accepted: eip155:5042 (Arc Mainnet) or eip155:8453 (Base Mainnet).`,
+    })
+  }
+
+  // Build the matching requirements for this specific payment network
+  const matchedNetwork = Object.values(PAYMENT_NETWORKS).find(n => n.caip2 === paymentCaip2)!
+  const requirements = paymentRequirementsFor(matchedNetwork.caip2, matchedNetwork.usdc, sellerAddress)
+
   const facilitator = new BatchFacilitatorClient({ url: FACILITATOR_URL })
-  const requirements = paymentRequirements(sellerAddress)
 
   let settleResult: { success: boolean; errorReason?: string }
   try {
@@ -177,7 +224,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('[api/agent/paid] settlement rejected:', settleResult.errorReason)
     return require402(res, sellerAddress, {
       error:   'payment_failed',
-      message: 'Payment was rejected by the facilitator. Ensure the payment is for Arc Mainnet USDC (0.01 USDC).',
+      message: 'Payment was rejected by the facilitator. Ensure the payment is 0.01 USDC on Arc Mainnet (eip155:5042) or Base Mainnet (eip155:8453).',
     })
   }
 
