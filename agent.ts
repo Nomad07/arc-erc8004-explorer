@@ -1,5 +1,5 @@
 /**
- * GET /api/agent — DISABLED
+ * GET /api/agent — DISABLED / RETIRED
  *
  * This endpoint has been retired. Use GET /api/agent/paid instead.
  * Returns 410 Gone for all requests.
