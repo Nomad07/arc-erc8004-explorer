@@ -4,7 +4,7 @@ A read-only explorer and API for discovering and inspecting ERC-8004 agents on A
 
 **Live Explorer:** https://arcagents.app/
 
-<a href="https://agents.circle.com/sell"><img src="https://img.shields.io/badge/Circle%20Agent%20Ready-100%2F100-0F6BFF?style=for-the-badge&logo=circle&logoColor=white" alt="Circle Agent Ready — 100/100"></a>
+<a href="https://agents.circle.com/sell/score?url=www.arcagents.app"><img src="https://img.shields.io/badge/Circle%20Agent%20Ready-100%2F100-0F6BFF?style=for-the-badge&logo=circle&logoColor=white" alt="Circle Agent Ready — 100/100"></a>
 
 ## Overview
 
