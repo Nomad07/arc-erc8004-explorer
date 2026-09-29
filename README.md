@@ -55,34 +55,24 @@ The explorer reads public onchain data and does not require users to connect a w
 
 ## API
 
-The Explorer exposes a public JSON API for programmatic and AI agent access.
-
-### `GET /api/agent` — free
-
-Returns ERC-8004 agent identity, metadata, reputation, and validation data.
-
-```
-GET https://arcagents.app/api/agent?network=mainnet&agentId=15
-GET https://arcagents.app/api/agent?network=testnet&agentId=98
-```
-
-No authentication. No wallet. CDN-cached 30 seconds.
+The Explorer exposes a JSON API for programmatic and AI agent access.
 
 ### `GET /api/agent/paid` — 0.01 USDC (x402)
 
-Same data as the free endpoint, gated by a [Circle Gateway](https://developers.circle.com/gateway) x402 micropayment of **0.01 USDC** per request. Intended for AI agents and automated workflows.
+Returns ERC-8004 agent identity, metadata, reputation, and validation data, gated by a [Circle Gateway](https://developers.circle.com/gateway) x402 micropayment of **0.01 USDC** per request. Intended for AI agents and automated workflows.
 
 - ERC-8004 data is always resolved from **Arc Mainnet** (`network=mainnet`)
-- Payment can be made on **either** of the following networks (payer's choice):
+- Payment can be made on any of the following networks (payer's choice):
 
-| Payment network | CAIP-2        | USDC address                                   |
-|-----------------|---------------|------------------------------------------------|
-| Arc Mainnet     | `eip155:5042` | `0x3600000000000000000000000000000000000000`   |
-| Base Mainnet    | `eip155:8453` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`  |
+| Payment network | CAIP-2          | USDC address                                   |
+|-----------------|-----------------|------------------------------------------------|
+| Arc Mainnet     | `eip155:5042`   | `0x3600000000000000000000000000000000000000`   |
+| Base Mainnet    | `eip155:8453`   | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`  |
+| Arbitrum One    | `eip155:42161`  | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`  |
 
 Payment flow (x402 Version 2):
 1. `GET /api/agent/paid?network=mainnet&agentId=15` → **402** with `PAYMENT-REQUIRED` header
-2. Decode `PAYMENT-REQUIRED` (base64 JSON) — `accepts[]` lists both payment networks
+2. Decode `PAYMENT-REQUIRED` (base64 JSON) — `accepts[]` lists all three payment networks
 3. Choose one network, sign a GatewayWalletBatched EIP-3009 authorization for `10000` USDC units
 4. Base64-encode the signed payload → `X-PAYMENT` header
 5. Resend `GET` with `X-PAYMENT` → **200** `AgentResponse` on success

@@ -52,10 +52,9 @@ No wallet connection is required for the human Explorer. The paid API endpoint a
 
 ## API
 
-### `GET /api/agent` — free
+### `GET /api/agent` — RETIRED (410 Gone)
 
-- Parameters: `network` (`mainnet` | `testnet`), `agentId` (positive integer)
-- No authentication. CDN-cached 30s. Returns full `AgentResponse`.
+- Returns `410 Gone` for all requests. Use `/api/agent/paid` instead.
 
 ### `GET /api/agent/paid` — x402, 0.01 USDC
 
@@ -65,7 +64,8 @@ No wallet connection is required for the human Explorer. The paid API endpoint a
 - **Accepted payment networks (payer's choice):**
   - Arc Mainnet — `eip155:5042` — USDC `0x3600000000000000000000000000000000000000`
   - Base Mainnet — `eip155:8453` — USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
-- GatewayWallet verifyingContract: `0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE` (same on both)
+  - Arbitrum One — `eip155:42161` — USDC `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`
+- GatewayWallet verifyingContract: `0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE` (same on all three networks)
 - Amount: `10000` units (0.01 USDC, 6 decimals)
 - Seller address: configured via `SELLER_ADDRESS` environment variable
 - No CDN cache (`Cache-Control: no-store`)
