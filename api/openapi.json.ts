@@ -16,9 +16,9 @@ const spec = {
   openapi: '3.1.0',
   info: {
     title:       'Arc ERC-8004 Explorer API',
-    version:     '1.2.0',
-    description: 'Read-only public API for resolving ERC-8004 agent identities on Arc Mainnet and Arc Testnet. No authentication required for the free endpoint. No write operations.',
-    contact: { url: 'https://arcagents.app', email: 'hi@arcagents.app' },
+    version:     '1.4.0',
+    description: 'Read-only public API for resolving ERC-8004 agent identities on Arc Mainnet. Paid x402 endpoint only. No write operations.',
+    contact: { url: 'https://www.arcagents.app', email: 'hi@arcagents.app' },
     'x-agent-consumable': true,
     'x-guidance': [
       'ARC AGENTS API — guidance for AI agents',
@@ -26,101 +26,45 @@ const spec = {
       'SERVICE: Resolve ERC-8004 on-chain agent identities registered on the Arc blockchain.',
       'Returns: owner address, agent wallet, IPFS metadata (name, description, services), reputation score and client feedback, and validation status.',
       '',
-      'FREE ENDPOINT — GET /api/agent',
-      '  Required: network (mainnet | testnet), agentId (positive integer)',
-      '  No payment. No authentication. Returns full AgentResponse.',
-      '  Use this endpoint for Testnet lookups and for exploratory/free Mainnet lookups.',
-      '',
-      'PAID ENDPOINT — GET /api/agent/paid',
+      'ENDPOINT — GET /api/agent/paid',
       '  Required: network=mainnet, agentId (positive integer)',
       '  Cost: 0.01 USDC per successful request',
       '  Payment: x402 Version 2, Circle Gateway Nanopayments',
       '  Accepted payment networks (payer\'s choice — ERC-8004 data always comes from Arc Mainnet):',
-      '    • Arc Mainnet  — eip155:5042  — USDC 0x3600000000000000000000000000000000000000 (6 decimals; amount = 10000)',
-      '    • Base Mainnet — eip155:8453  — USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (6 decimals; amount = 10000)',
-      '  GatewayWallet verifyingContract: 0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE (same on both networks)',
-      '  Flow: 1) Send GET without X-PAYMENT → receive 402 with PAYMENT-REQUIRED header.',
-      '         2) Decode PAYMENT-REQUIRED (base64 JSON) — accepts[] lists both networks.',
+      '    • Arc Mainnet   — eip155:5042   — USDC 0x3600000000000000000000000000000000000000 (6 decimals; amount = 10000)',
+      '    • Base Mainnet  — eip155:8453   — USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (6 decimals; amount = 10000)',
+      '    • Arbitrum One  — eip155:42161  — USDC 0xaf88d065e77c8cC2239327C5EDb3A432268e5831 (6 decimals; amount = 10000)',
+      '  GatewayWallet verifyingContract: 0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE (same on all networks)',
+      '  Flow: 1) Send GET without PAYMENT-SIGNATURE → receive 402 with PAYMENT-REQUIRED header.',
+      '         2) Decode PAYMENT-REQUIRED (base64 JSON) — accepts[] lists all three networks.',
       '         3) Choose one payment network. Sign a GatewayWalletBatched EIP-3009 authorization for 10000 USDC units on that network.',
-      '         4) Base64-encode the signed payload → X-PAYMENT header.',
-      '         5) Resend GET with X-PAYMENT → receive 200 AgentResponse on success.',
-      '  Returns: identical structure to the free endpoint.',
+      '         4) Base64-encode the signed payload → PAYMENT-SIGNATURE header.',
+      '         5) Resend GET with PAYMENT-SIGNATURE → receive 200 AgentResponse on success.',
+      '  Returns: AgentResponse (identity, metadata, reputation, validation).',
       '  Mainnet only: network=testnet returns 400.',
       '',
       'WHEN TO CALL:',
-      '  - Call /api/agent to discover what an ERC-8004 agent does before interacting with it.',
-      '  - Call /api/agent/paid when a workflow requires verified agent identity data and the agent can pay per call.',
-      '  - Both endpoints are read-only and safe to call without fear of side effects.',
+      '  - Call /api/agent/paid to resolve ERC-8004 agent identity, metadata, reputation, and validation data.',
+      '  - The endpoint is read-only and safe to call without fear of side effects.',
       '',
-      'AGENT IDs: on Arc Mainnet, confirmed agents include #1, #8, #14, #15. On Testnet: #1, #2, #98, #876978, #876991.',
-      'A 404 means the agent ID is not minted on that network.',
+      'AGENT IDs: on Arc Mainnet, confirmed agents include #1, #8, #14, #15.',
+      'A 404 means the agent ID is not minted on Arc Mainnet.',
     ].join('\n'),
   },
   externalDocs: {
     description: 'Arc ERC-8004 Explorer',
-    url:         'https://arcagents.app',
+    url:         'https://www.arcagents.app',
   },
   servers: [
-    { url: 'https://arcagents.app', description: 'Production' },
-    { url: 'https://www.arcagents.app', description: 'Production (www)' },
+    { url: 'https://www.arcagents.app', description: 'Production' },
+    { url: 'https://arcagents.app',     description: 'Production (bare domain)' },
   ],
   paths: {
-    '/api/agent': {
-      get: {
-        operationId: 'getAgent',
-        summary:     'Resolve an ERC-8004 agent by ID',
-        description: 'Returns identity, metadata, reputation, and validation data for the specified ERC-8004 agent on the given Arc network. All data is fetched live from the onchain registries. Read-only.',
-        parameters: [
-          {
-            name: 'network', in: 'query', required: true,
-            description: "Target network: 'mainnet' (Arc Mainnet, chainId 5042) or 'testnet' (Arc Testnet, chainId 5042002).",
-            schema: { type: 'string', enum: ['mainnet', 'testnet'] },
-            example: 'mainnet',
-          },
-          {
-            name: 'agentId', in: 'query', required: true,
-            description: 'ERC-8004 agent token ID (positive integer).',
-            schema: { type: 'integer', minimum: 1 },
-            example: 15,
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Agent resolved successfully.',
-            headers: {
-              'Cache-Control':                { description: 'CDN cache — 30s for successful responses.', schema: { type: 'string' } },
-              'Access-Control-Allow-Origin':  { description: 'CORS header. Always *.', schema: { type: 'string' } },
-            },
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/AgentResponse' },
-              },
-            },
-          },
-          '400': {
-            description: 'Invalid or missing query parameters.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
-          },
-          '404': {
-            description: 'Agent ID not found on the specified network.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
-          },
-          '503': {
-            description: 'RPC call failed.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
-          },
-          '500': {
-            description: 'Unexpected server error.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
-          },
-        },
-      },
-    },
     '/api/agent/paid': {
       get: {
         operationId: 'getAgentPaid',
         summary:     'Resolve an ERC-8004 agent by ID (paid, 0.01 USDC)',
-        description: 'Returns the same agent data as /api/agent but requires a Circle Gateway x402 payment of 0.01 USDC. ERC-8004 data is always resolved from Arc Mainnet (network=mainnet). Payment can be made on either Arc Mainnet (eip155:5042, USDC 0x3600000000000000000000000000000000000000) or Base Mainnet (eip155:8453, USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913). The 402 response lists both networks in accepts[]. Only network=mainnet is accepted as the ERC-8004 data network. Requires an X-PAYMENT header containing a base64-encoded x402 Version 2 payment payload.',
+        description: 'Returns ERC-8004 agent identity, metadata, reputation, and validation data. Requires a Circle Gateway x402 payment of 0.01 USDC. ERC-8004 data is always resolved from Arc Mainnet (network=mainnet). Payment can be made on any of three networks: Arc Mainnet (eip155:5042, USDC 0x3600000000000000000000000000000000000000), Base Mainnet (eip155:8453, USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913), or Arbitrum One (eip155:42161, USDC 0xaf88d065e77c8cC2239327C5EDb3A432268e5831). The 402 response lists all three networks in accepts[]. Only network=mainnet is accepted as the ERC-8004 data network. Requires a PAYMENT-SIGNATURE header containing a base64-encoded x402 Version 2 payment payload.',
         'x-payment-info': {
           price: {
             mode:     'fixed',
@@ -134,7 +78,7 @@ const spec = {
         parameters: [
           {
             name: 'network', in: 'query', required: true,
-            description: "Must be 'mainnet'. The paid endpoint does not support Testnet. Use /api/agent for free Testnet lookups.",
+            description: "Must be 'mainnet'. The paid endpoint resolves ERC-8004 data from Arc Mainnet only.",
             schema: { type: 'string', enum: ['mainnet'] },
             example: 'mainnet',
           },
@@ -165,7 +109,7 @@ const spec = {
             description: 'Payment required or payment failed. The PAYMENT-REQUIRED header contains a base64-encoded x402 Version 2 payment requirements object.',
             headers: {
               'PAYMENT-REQUIRED': {
-                description: 'Base64-encoded JSON payment requirements (x402 Version 2). Decode to read accepts[] which lists two payment options: Arc Mainnet (eip155:5042) and Base Mainnet (eip155:8453). Choose one, sign a GatewayWalletBatched EIP-3009 authorization for 10000 USDC units on that network, base64-encode the payload, and resend as the X-PAYMENT header.',
+                description: 'Base64-encoded JSON payment requirements (x402 Version 2). Decode to read accepts[] which lists three payment options: Arc Mainnet (eip155:5042), Base Mainnet (eip155:8453), and Arbitrum One (eip155:42161). Choose one, sign a GatewayWalletBatched EIP-3009 authorization for 10000 USDC units on that network, base64-encode the payload, and resend as the PAYMENT-SIGNATURE header.',
                 schema: { type: 'string', format: 'byte' },
               },
             },
@@ -197,6 +141,19 @@ const spec = {
                       scheme:            'exact',
                       network:           'eip155:8453',
                       asset:             '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                      amount:            '10000',
+                      payTo:             '0x<SELLER_ADDRESS>',
+                      maxTimeoutSeconds: 604900,
+                      extra: {
+                        name:              'GatewayWalletBatched',
+                        version:           '1',
+                        verifyingContract: '0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE',
+                      },
+                    },
+                    {
+                      scheme:            'exact',
+                      network:           'eip155:42161',
+                      asset:             '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
                       amount:            '10000',
                       payTo:             '0x<SELLER_ADDRESS>',
                       maxTimeoutSeconds: 604900,
@@ -244,7 +201,7 @@ const spec = {
         required: ['agentId', 'network', 'chainId', 'identity', 'metadata', 'metadataError', 'reputation', 'validation', 'links', 'fetchedAt'],
         properties: {
           agentId:  { type: 'integer',  description: 'ERC-8004 token ID.' },
-          network:  { type: 'string',   enum: ['mainnet', 'testnet'] },
+          network:  { type: 'string',   enum: ['mainnet'] },
           chainId:  { type: 'integer',  description: 'EVM chain ID.' },
           identity: {
             type: 'object',
@@ -340,7 +297,7 @@ const spec = {
       },
       PaymentRequiredResponse: {
         type: 'object',
-        description: 'x402 Version 2 payment requirements. Returned as the 402 body and in the base64-encoded PAYMENT-REQUIRED header. accepts[] contains one entry per supported payment network (Arc Mainnet eip155:5042 and Base Mainnet eip155:8453). ERC-8004 data is always resolved from Arc Mainnet regardless of which payment network is used.',
+        description: 'x402 Version 2 payment requirements. Returned as the 402 body and in the base64-encoded PAYMENT-REQUIRED header. accepts[] contains one entry per supported payment network (Arc Mainnet eip155:5042, Base Mainnet eip155:8453, and Arbitrum One eip155:42161). ERC-8004 data is always resolved from Arc Mainnet regardless of which payment network is used.',
         properties: {
           x402Version: { type: 'integer', enum: [2] },
           resource: {
@@ -353,13 +310,13 @@ const spec = {
           },
           accepts: {
             type: 'array',
-            description: 'List of accepted payment options. Currently two entries: Arc Mainnet (eip155:5042) and Base Mainnet (eip155:8453). Choose one to pay with.',
+            description: 'List of accepted payment options. Three entries: Arc Mainnet (eip155:5042), Base Mainnet (eip155:8453), and Arbitrum One (eip155:42161). Choose one to pay with.',
             items: {
               type: 'object',
               properties: {
                 scheme:            { type: 'string', enum: ['exact'] },
-                network:           { type: 'string', description: 'CAIP-2 network ID. eip155:5042 = Arc Mainnet; eip155:8453 = Base Mainnet.' },
-                asset:             { type: 'string', description: 'USDC contract address on the payment network. Arc Mainnet: 0x3600000000000000000000000000000000000000; Base Mainnet: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913.' },
+                network:           { type: 'string', description: 'CAIP-2 network ID. eip155:5042 = Arc Mainnet; eip155:8453 = Base Mainnet; eip155:42161 = Arbitrum One.' },
+                asset:             { type: 'string', description: 'USDC contract address on the payment network. Arc Mainnet: 0x3600000000000000000000000000000000000000; Base Mainnet: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913; Arbitrum One: 0xaf88d065e77c8cC2239327C5EDb3A432268e5831.' },
                 amount:            { type: 'string', description: 'Payment amount in smallest USDC units (6 decimals). 10000 = 0.01 USDC.' },
                 payTo:             { type: 'string', description: "Seller's EVM receive address." },
                 maxTimeoutSeconds: { type: 'integer' },
@@ -368,7 +325,7 @@ const spec = {
                   properties: {
                     name:              { type: 'string', enum: ['GatewayWalletBatched'] },
                     version:           { type: 'string', enum: ['1'] },
-                    verifyingContract: { type: 'string', description: 'Circle GatewayWallet contract address. 0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE on both Arc Mainnet and Base Mainnet.' },
+                    verifyingContract: { type: 'string', description: 'Circle GatewayWallet contract address. 0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE on Arc Mainnet, Base Mainnet, and Arbitrum One.' },
                   },
                 },
               },
