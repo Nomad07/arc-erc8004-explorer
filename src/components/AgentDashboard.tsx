@@ -1509,6 +1509,19 @@ export function AgentDashboard() {
           <span className="aex-footer-egg">Made with <span className="aex-footer-heart">♥</span> on Mars</span>
           <span className="aex-footer-links">
             <a
+              href="https://agents.circle.com/sell/score?url=www.arcagents.app"
+              target="_blank" rel="noopener noreferrer"
+              className="aex-footer-link"
+              title="Accepts Agent Payments · Verified by Circle"
+              style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}
+            >
+              <img
+                src="https://assets.coingecko.com/coins/images/6319/standard/usdc.png"
+                alt="USDC — Accepts Agent Payments"
+                style={{ width: 20, height: 20, borderRadius: '50%', display: 'block' }}
+              />
+            </a>
+            <a
               href="https://github.com/Nomad07/arc-erc8004-explorer"
               target="_blank" rel="noopener noreferrer"
               className="aex-footer-link"

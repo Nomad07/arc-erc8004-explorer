@@ -53,7 +53,7 @@ const SUPPORTED_CAIP2 = new Set(Object.values(PAYMENT_NETWORKS).map(n => n.caip2
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, PAYMENT-SIGNATURE',
+  'Access-Control-Allow-Headers': 'Content-Type, X-PAYMENT',
   'Access-Control-Expose-Headers': 'PAYMENT-REQUIRED',
 }
 
@@ -134,7 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // ── Payment gate ──────────────────────────────────────────────────────────
-  // Check PAYMENT-SIGNATURE BEFORE query-parameter validation so that an unauthenticated
+  // Check X-PAYMENT BEFORE query-parameter validation so that an unauthenticated
   // request to the bare URL returns 402 (with the full accepts[]) rather than 400.
   // The Circle readiness checker and agent buyers call the bare endpoint with no
   // query parameters — they need to see the 402 challenge first.
@@ -145,7 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return require402(res, sellerAddress)
   }
 
-  // ── Validate request parameters (only reached when PAYMENT-SIGNATURE is present) ──
+  // ── Validate request parameters (only reached when X-PAYMENT is present) ──
   const networkParam = (req.query.network as string | undefined)?.toLowerCase()
   const agentIdParam = req.query.agentId as string | undefined
 
@@ -193,20 +193,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch {
     return require402(res, sellerAddress, {
       error:   'payment_invalid',
-      message: 'PAYMENT-SIGNATURE header could not be decoded. Expected base64-encoded JSON.',
+      message: 'X-PAYMENT header could not be decoded. Expected base64-encoded JSON.',
     })
   }
 
   // Identify the payment network from the payload so we can settle against
-  // the matching requirements. The x402 v2 payload from Circle CLI carries the
-  // selected network inside accepted.network; fall back to top-level network /
-  // x402Network for other clients.
-  const acceptedPayment = paymentPayload.accepted as Record<string, unknown> | undefined
-  const paymentCaip2 = (
-    acceptedPayment?.network ??
-    paymentPayload.network ??
-    paymentPayload.x402Network
-  ) as string | undefined
+  // the matching requirements. The x402 payload carries the network as a
+  // CAIP-2 string at the top level.
+  const paymentCaip2 = (paymentPayload.network ?? paymentPayload.x402Network) as string | undefined
   if (!paymentCaip2 || !SUPPORTED_CAIP2.has(paymentCaip2)) {
     return require402(res, sellerAddress, {
       error:   'payment_invalid',
