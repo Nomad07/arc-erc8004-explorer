@@ -75,10 +75,11 @@ body {
   }
   .aex-search-row input {
     width: 100%;
+    height: 50px !important;
   }
   .aex-search-btn {
     width: 100%;
-    height: 42px !important;
+    height: 50px !important;
   }
 }
 
