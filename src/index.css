@@ -69,17 +69,22 @@ body {
   display: flex;
   gap: 8px;
 }
+/* Base height for both elements — controlled here so the mobile breakpoint can override cleanly */
+.aex-search-input,
+.aex-search-btn {
+  height: 38px;
+}
 @media (max-width: 480px) {
   .aex-search-row {
     flex-direction: column;
   }
-  .aex-search-row input {
+  .aex-search-input {
     width: 100%;
-    height: 50px !important;
+    height: 50px;
   }
   .aex-search-btn {
     width: 100%;
-    height: 50px !important;
+    height: 50px;
   }
 }
 
