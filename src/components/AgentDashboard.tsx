@@ -1029,7 +1029,7 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
         <input
           type="text"
           inputMode="numeric"
-          placeholder={`Enter Agent ID, e.g. ${networkLabel.includes('Mainnet') ? '14' : '876978'}`}
+          placeholder="Enter Agent ID"
           value={value}
           onChange={e => { onChange(e.target.value); }}
           onKeyDown={handleKey}
