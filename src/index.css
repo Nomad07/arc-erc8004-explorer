@@ -76,14 +76,17 @@ body {
 }
 @media (max-width: 480px) {
   .aex-search-row {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: stretch;
   }
   .aex-search-input {
-    width: 100%;
+    flex: 0 0 55%;
+    width: 55%;
     height: 50px;
   }
   .aex-search-btn {
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
     height: 50px;
   }
 }

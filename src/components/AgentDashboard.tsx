@@ -1029,15 +1029,14 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
         <input
           type="text"
           inputMode="numeric"
-          placeholder={`Enter Agent ID, e.g. ${networkLabel.includes('Mainnet') ? '14' : '89'}`}
+          placeholder={`Enter Agent ID, e.g. ${networkLabel.includes('Mainnet') ? '14' : '876978'}`}
           value={value}
           onChange={e => { onChange(e.target.value); }}
           onKeyDown={handleKey}
           disabled={pending}
-          className="aex-search-input"
           style={{
             flex: 1, minWidth: 0,
-            padding: '0 14px',
+            height: 38, padding: '0 14px',
             background: T.bgInner,
             border: `1px solid ${error || notFound ? 'rgba(255,80,80,0.35)' : T.border}`,
             borderRadius: 9,
@@ -1053,7 +1052,7 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
           disabled={pending}
           className="aex-search-btn"
           style={{
-            padding: '0 18px', flexShrink: 0,
+            height: 38, padding: '0 18px', flexShrink: 0,
             background: pending ? T.bgInner : accent.dim,
             border: `1px solid ${accent.border}`,
             borderRadius: 9, cursor: pending ? 'not-allowed' : 'pointer',
