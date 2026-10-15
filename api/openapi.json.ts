@@ -68,7 +68,7 @@ const spec = {
         'x-payment-info': {
           price: {
             mode:     'fixed',
-            currency: 'USDC',
+            currency: 'USD',   // x402scan requires decimal-USD denomination, not token symbol
             amount:   '0.010000',
           },
           protocols: [
@@ -188,6 +188,10 @@ const spec = {
         operationId: 'getOpenApi',
         summary:     'OpenAPI specification',
         description: 'Returns this OpenAPI 3.1 document.',
+        // security: [] tells x402scan this endpoint is free/public and must not be probed
+        // for a 402 payment challenge. Without this, x402scan probes it, receives 200, and
+        // reports "No valid x402 response found", which prevents /api/agent/paid registration.
+        security:    [],
         responses: {
           '200': { description: 'OpenAPI document.', content: { 'application/json': { schema: { type: 'object' } } } },
         },
