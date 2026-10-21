@@ -16,7 +16,9 @@ export const config = createConfig({
   chains: [arcTestnet, arc, mainnet], // mainnet needed for ENS resolution
   connectors: [injected()],
   transports: {
-    [arcTestnet.id]: http(),
+    // viem's arcTestnet definition ships rpc.testnet.arc.network which is unreachable;
+    // supply the working endpoint explicitly to match api/_lib/networks.ts
+    [arcTestnet.id]: http('https://rpc.testnet.arc.io'),
     // viem's arc definition has no default RPC URL — supply it explicitly
     [arc.id]: http('https://rpc.mainnet.arc.io'),
     [mainnet.id]: http(), // ENS resolution uses mainnet
