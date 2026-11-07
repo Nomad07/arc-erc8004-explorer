@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0d1b2f;
-  --bg-gradient: linear-gradient(180deg, #0d1b2f 0%, #0d1b2f 58%, #122d45 100%);
-  --surface: rgba(255, 255, 255, 0.07);
-  --surface-strong: rgba(255, 255, 255, 0.11);
-  --surface-muted: #1f2f44;
-  --ink: #f9faf3;
-  --ink-2: #e3ecf9;
-  --muted: #cbd5e1;
-  --subtle: #94a3b8;
-  --border: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(203, 219, 242, 0.55);
-  --accent: #acc6e9;
-  --accent-hover: #cbdbf2;
-  --success: #8dd89f;
+  --bg: #0b0c0e;
+  --bg-gradient: #0b0c0e;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.07);
+  --surface-muted: #17191d;
+  --ink: #ecedef;
+  --ink-2: #a0a4ab;
+  --muted: #a0a4ab;
+  --subtle: #6b7078;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent: #e0a83c;
+  --accent-hover: #ecc06a;
+  --success: #59c98a;
   --danger: #e86d7a;
 }
 
@@ -43,14 +43,61 @@ body {
 
 /* ── Arc Agent Explorer — responsive layout ─────────────────────────────── */
 
-/* Nav bar: allow content to wrap below ~480px */
+/* Nav bar: full-bleed sticky surface; its inner row shares the .aex-content
+   container (max-width + horizontal padding) so header and body edges match. */
 .aex-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(11, 12, 14, 0.9);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.aex-nav-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
-  height: auto !important;
-  min-height: 50px;
-  row-gap: 8px;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
+  gap: 10px 16px;
+}
+.aex-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.aex-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.aex-subtitle {
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+.aex-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 560px) {
+  .aex-nav-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+@media (max-width: 400px) {
+  .aex-title {
+    font-size: 18px;
+  }
 }
 
 /* Network selector buttons: shrink label text on very small screens */
@@ -69,10 +116,36 @@ body {
   display: flex;
   gap: 8px;
 }
+/* Search card: label, input row and example links share one surface */
+.aex-search-card {
+  padding: 16px;
+  background: #111316;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.aex-search-input:focus-visible,
+.aex-search-btn:focus-visible {
+  outline: 2px solid rgba(224, 168, 60, 0.45);
+  outline-offset: 1px;
+}
 /* Base height for both elements — controlled here so the mobile breakpoint can override cleanly */
 .aex-search-input,
 .aex-search-btn {
-  height: 38px;
+  height: 42px;
+}
+
+/* Copy Link button in the agent hero card */
+.aex-hero-header {
+  width: 100%;
+}
+.aex-copy-link {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+@media (max-width: 400px) {
+  .aex-copy-link {
+    margin-left: 0;
+  }
 }
 @media (max-width: 480px) {
   .aex-search-row {
@@ -288,15 +361,6 @@ html, body, #root {
   /* Full-width row below the two-column grid */
   .aex-tablet-full {
     margin-top: 14px;
-  }
-
-  /* 3. Nav: no wrapping — plenty of horizontal room at tablet */
-  .aex-nav {
-    flex-wrap: nowrap;
-    height: 50px !important;
-    min-height: 50px;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
   }
 
   /* 4. Stats: 3 balanced columns — wider container means each tile has room */

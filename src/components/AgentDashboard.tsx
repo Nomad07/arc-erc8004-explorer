@@ -7,6 +7,7 @@
 
 import { useReadContract, useReadContracts } from 'wagmi'
 import { useState, useEffect, useCallback } from 'react'
+import { Copy, Check } from 'lucide-react'
 import { requireChain, buildAddressExplorerUrl } from '@/onchain-facts'
 
 // ─── Network configs ──────────────────────────────────────────────────────────
@@ -130,28 +131,28 @@ function formatScore(value: bigint, decimals: number): string {
 
 // Base palette
 const T = {
-  // Backgrounds
-  bg:        '#07101c',
-  bgNav:     'rgba(7,16,28,0.94)',
-  bgCard:    'rgba(255,255,255,0.038)',
-  bgHero:    'rgba(255,255,255,0.052)',
-  bgInner:   'rgba(255,255,255,0.030)',
-  bgWell:    'rgba(255,255,255,0.022)',
+  // Backgrounds — graphite surfaces
+  bg:        '#0b0c0e',
+  bgNav:     'rgba(11,12,14,0.9)',
+  bgCard:    '#111316',
+  bgHero:    '#14161a',
+  bgInner:   '#17191d',
+  bgWell:    '#0e1013',
 
   // Borders
-  border:    'rgba(255,255,255,0.075)',
-  borderMid: 'rgba(255,255,255,0.10)',
+  border:    'rgba(255,255,255,0.08)',
+  borderMid: 'rgba(255,255,255,0.12)',
 
   // Text
-  ink:       '#eef2f7',
-  ink2:      '#8a9ab0',
-  ink3:      '#4a5a6e',
-  ink4:      '#2e3a48',
+  ink:       '#ecedef',
+  ink2:      '#a0a4ab',
+  ink3:      '#7a7f87',
+  ink4:      '#4d5159',
 
   // Semantic
-  green:     '#4ade80',
-  greenDim:  'rgba(74,222,128,0.09)',
-  greenB:    'rgba(74,222,128,0.20)',
+  green:     '#59c98a',
+  greenDim:  'rgba(89,201,138,0.09)',
+  greenB:    'rgba(89,201,138,0.22)',
   red:       '#f87171',
   redDim:    'rgba(248,113,113,0.08)',
   redB:      'rgba(248,113,113,0.18)',
@@ -165,8 +166,8 @@ const T = {
 // Network-aware accent — call once in AgentDashboard, thread down
 function getAccent(isMainnet: boolean) {
   return isMainnet
-    ? { color: '#e8a430', dim: 'rgba(232,164,48,0.10)', border: 'rgba(232,164,48,0.24)', glow: 'rgba(232,164,48,0.08)' }
-    : { color: '#60a5fa', dim: 'rgba(96,165,250,0.10)', border: 'rgba(96,165,250,0.22)', glow: 'rgba(96,165,250,0.08)' }
+    ? { color: '#e0a83c', dim: 'rgba(224,168,60,0.10)', border: 'rgba(224,168,60,0.26)', glow: 'rgba(224,168,60,0.06)' }
+    : { color: '#8fa6c4', dim: 'rgba(143,166,196,0.10)', border: 'rgba(143,166,196,0.24)', glow: 'rgba(143,166,196,0.06)' }
 }
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
@@ -247,13 +248,13 @@ function Card({ children, hero = false, accent, style: s }: {
       position: 'relative', overflow: 'hidden',
       background: hero ? T.bgHero : T.bgCard,
       border: `1px solid ${hero && accent ? accent.border : T.border}`,
-      borderRadius: 14,
+      borderRadius: 12,
       ...s,
     }}>
       {hero && accent && (
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-          background: `linear-gradient(90deg, transparent 0%, ${accent.color}55 40%, ${accent.color}55 60%, transparent 100%)`,
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: accent.color, opacity: 0.55,
         }} />
       )}
       {children}
@@ -375,6 +376,62 @@ function CopyButton({ value, accent }: { value: string; accent: ReturnType<typeo
       }}
     >
       {state === 'copied' ? 'Copied' : 'Copy'}
+    </button>
+  )
+}
+
+// ─── Copy deep link ───────────────────────────────────────────────────────────
+
+/** Compact "Copy Link" button: copies the agent's direct deep link and confirms briefly. */
+function CopyLinkButton({ href, accent }: { href: string; accent: ReturnType<typeof getAccent> }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle')
+
+  const settle = (next: 'copied' | 'failed') => {
+    setState(next)
+    setTimeout(() => setState('idle'), 1800)
+  }
+
+  const copy = () => {
+    // Clipboard API can be unavailable or blocked (e.g. inside an iframe); fall back to execCommand.
+    const fallback = () => {
+      const ta = document.createElement('textarea')
+      ta.value = href
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(ta)
+      settle(ok ? 'copied' : 'failed')
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(href).then(() => settle('copied'), fallback)
+    } else {
+      fallback()
+    }
+  }
+
+  const copied = state === 'copied'
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="aex-copy-link"
+      title="Copy direct link to this agent"
+      aria-live="polite"
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        height: 30, padding: '0 11px', borderRadius: 8, cursor: 'pointer',
+        fontSize: 12, fontWeight: 600, fontFamily: T.body, letterSpacing: '0.01em',
+        background: copied ? T.greenDim : T.bgInner,
+        border: `1px solid ${copied ? T.greenB : state === 'failed' ? T.redB : T.border}`,
+        color: copied ? T.green : state === 'failed' ? T.red : accent.color,
+        transition: 'all 0.12s',
+      }}
+    >
+      {copied ? <Check size={13} strokeWidth={2.4} /> : <Copy size={13} strokeWidth={2.2} />}
+      {copied ? 'Link copied!' : state === 'failed' ? 'Copy failed' : 'Copy Link'}
     </button>
   )
 }
@@ -508,7 +565,7 @@ function NetworkSelector({
 }) {
   return (
     <div style={{
-      display: 'flex', gap: 2, padding: 2, borderRadius: 9,
+      display: 'flex', gap: 2, padding: 2, borderRadius: 10,
       background: T.bgInner, border: `1px solid ${T.border}`,
     }}>
       {configs.map((cfg, i) => {
@@ -521,7 +578,7 @@ function NetworkSelector({
             onClick={() => onChange(i)}
             className="aex-net-btn"
             style={{
-              padding: '5px 14px', borderRadius: 7, cursor: 'pointer',
+              padding: '6px 14px', borderRadius: 8, cursor: 'pointer',
               fontSize: 11, fontWeight: 700, fontFamily: T.body, letterSpacing: '0.03em',
               background: active ? ac.dim : 'transparent',
               border: `1px solid ${active ? ac.border : 'transparent'}`,
@@ -924,11 +981,18 @@ function parseDeepLink(): { agentId: bigint; networkKey: 'mainnet' | 'testnet' }
   }
 }
 
+/** The single deep-link path format: /agent/{id}?network=mainnet|testnet. */
+function deepLinkPath(agentId: bigint, networkKey: 'mainnet' | 'testnet'): string {
+  return `/agent/${agentId}?network=${networkKey}`
+}
+
 /** Push /agent/{id}?network=mainnet|testnet to the browser history. */
 function pushDeepLink(agentId: bigint, networkKey: 'mainnet' | 'testnet') {
-  const url = `/agent/${agentId}?network=${networkKey}`
-  window.history.pushState({}, '', url)
+  window.history.pushState({}, '', deepLinkPath(agentId, networkKey))
 }
+
+/** Public origin for links people copy and share (matches the canonical URL in index.html). */
+const SHARE_ORIGIN = 'https://www.arcagents.app'
 
 /** Clear the URL back to / without a page reload. */
 function clearDeepLink() {
@@ -953,7 +1017,8 @@ function ExampleChips({
 }) {
   return (
     <div style={{
-      display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, marginBottom: 4,
+      display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
+      marginTop: 14, paddingTop: 12, borderTop: `1px solid ${T.border}`,
     }}>
       <span style={{
         fontSize: 10, fontWeight: 600, color: T.ink3, letterSpacing: '0.05em',
@@ -964,7 +1029,7 @@ function ExampleChips({
           key={chip.label}
           onClick={() => onSelect(chip)}
           style={{
-            padding: '3px 10px', borderRadius: 20,
+            padding: '4px 10px', borderRadius: 8,
             background: T.bgWell, border: `1px solid ${T.border}`,
             color: T.ink2, fontFamily: T.mono, fontSize: 11,
             cursor: 'pointer', transition: 'all 0.12s',
@@ -1015,11 +1080,11 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
     null
 
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div className="aex-search-card" style={{ marginBottom: 14 }}>
       {/* Label row */}
       <div className="aex-search-label" style={{
-        fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
-        color: T.ink3, marginBottom: 8, fontFamily: T.body,
+        fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+        color: T.ink3, marginBottom: 10, fontFamily: T.body,
       }}>
         Find an ERC-8004 Agent &nbsp;·&nbsp; Search on {networkLabel}
       </div>
@@ -1034,28 +1099,29 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
           onChange={e => { onChange(e.target.value); }}
           onKeyDown={handleKey}
           disabled={pending}
+          className="aex-search-input"
           style={{
             flex: 1, minWidth: 0,
-            height: 38, padding: '0 14px',
+            padding: '0 14px',
             background: T.bgInner,
-            border: `1px solid ${error || notFound ? 'rgba(255,80,80,0.35)' : T.border}`,
-            borderRadius: 9,
+            border: `1px solid ${error || notFound ? 'rgba(255,80,80,0.35)' : T.borderMid}`,
+            borderRadius: 8,
             color: T.ink, fontFamily: T.mono, fontSize: 13,
             outline: 'none',
             transition: 'border-color 0.15s',
           }}
           onFocus={e  => { e.currentTarget.style.borderColor = accent.border }}
-          onBlur={e   => { e.currentTarget.style.borderColor = (error || notFound) ? 'rgba(255,80,80,0.35)' : T.border }}
+          onBlur={e   => { e.currentTarget.style.borderColor = (error || notFound) ? 'rgba(255,80,80,0.35)' : T.borderMid }}
         />
         <button
           onClick={onSearch}
           disabled={pending}
           className="aex-search-btn"
           style={{
-            height: 38, padding: '0 18px', flexShrink: 0,
+            padding: '0 18px', flexShrink: 0,
             background: pending ? T.bgInner : accent.dim,
             border: `1px solid ${accent.border}`,
-            borderRadius: 9, cursor: pending ? 'not-allowed' : 'pointer',
+            borderRadius: 8, cursor: pending ? 'not-allowed' : 'pointer',
             color: pending ? T.ink3 : accent.color,
             fontSize: 12, fontWeight: 700, letterSpacing: '0.04em',
             fontFamily: T.body,
@@ -1208,15 +1274,11 @@ export function AgentDashboard() {
     <div style={{ minHeight: '100dvh', background: T.bg, fontFamily: T.body, color: T.ink }}>
 
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
-      <nav className="aex-nav" style={{
-        position: 'sticky', top: 0, zIndex: 20,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 18px',
-        background: T.bgNav, backdropFilter: 'blur(18px)',
-        borderBottom: `1px solid ${T.border}`,
-      }}>
+      <nav className="aex-nav">
+       {/* Same container classes as the body (.aex-content) so both share identical left/right edges */}
+       <div className="aex-content aex-nav-inner">
         {/* Left: wordmark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="aex-nav-brand">
           <div
             role="button"
             tabIndex={0}
@@ -1224,26 +1286,22 @@ export function AgentDashboard() {
             onKeyDown={e => e.key === 'Enter' && handleHome()}
             title="Home"
             style={{
-              width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-              background: `radial-gradient(circle at 38% 38%, ${accent.color}44, ${accent.color}08)`,
+              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+              background: accent.dim,
               border: `1px solid ${accent.border}`,
               cursor: 'pointer', transition: 'opacity 0.12s',
             }}
             onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
             onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <span style={{ fontFamily: T.display, fontSize: 13, fontWeight: 700, color: T.ink, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              Arc ERC-8004 Explorer
-            </span>
-            <span style={{ fontSize: 9, color: T.ink3, fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1 }}>
-              Find and inspect agents on Arc
-            </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+            <span className="aex-title">Arc ERC-8004 Explorer</span>
+            <span className="aex-subtitle">Find and inspect agents on Arc</span>
           </div>
         </div>
 
         {/* Right: live + selector + refresh */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="aex-nav-controls">
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '3px 9px', borderRadius: 100,
@@ -1258,7 +1316,7 @@ export function AgentDashboard() {
             onClick={handleRefresh}
             title="Refresh onchain data"
             style={{
-              width: 28, height: 28, borderRadius: 7, cursor: 'pointer',
+              width: 32, height: 32, borderRadius: 8, cursor: 'pointer', flexShrink: 0,
               background: refreshing ? accent.dim : T.bgInner,
               border: `1px solid ${refreshing ? accent.border : T.border}`,
               color: refreshing ? accent.color : T.ink3,
@@ -1269,6 +1327,7 @@ export function AgentDashboard() {
             ↺
           </button>
         </div>
+       </div>
       </nav>
 
       {/* ── BODY ────────────────────────────────────────────────────────── */}
@@ -1332,9 +1391,9 @@ export function AgentDashboard() {
                 <div className="aex-hero-header">
                   {/* Avatar */}
                   <div style={{
-                    width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                    background: `linear-gradient(135deg, ${accent.color}28 0%, ${accent.color}08 100%)`,
-                    border: `1.5px solid ${accent.border}`,
+                    width: 48, height: 48, borderRadius: 10, flexShrink: 0,
+                    background: accent.dim,
+                    border: `1px solid ${accent.border}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 16, fontFamily: T.mono, fontWeight: 700, color: accent.color,
                   }}>
@@ -1360,6 +1419,10 @@ export function AgentDashboard() {
                       )}
                     </div>
                   </div>
+                  <CopyLinkButton
+                    href={`${SHARE_ORIGIN}${deepLinkPath(activeAgentId, isMainnet ? 'mainnet' : 'testnet')}`}
+                    accent={accent}
+                  />
                 </div>
               </CardSection>
 
