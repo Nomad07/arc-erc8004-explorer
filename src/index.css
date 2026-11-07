@@ -43,25 +43,28 @@ body {
 
 /* ── Arc Agent Explorer — responsive layout ─────────────────────────────── */
 
-/* Nav bar: full-bleed sticky surface; its inner row shares the .aex-content
-   container (max-width + horizontal padding) so header and body edges match. */
-.aex-nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: rgba(11, 12, 14, 0.9);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
-}
+/* Header: a standalone card in the same container as the body (.aex-content
+   supplies max-width + horizontal padding), styled like .aex-search-card. */
 .aex-nav-inner {
   max-width: 680px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: 24px 16px 0;
+}
+.aex-nav-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 16px;
+  padding: 16px;
+  background: #111316;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+@media (max-width: 480px) {
+  .aex-nav-inner {
+    padding-top: 20px;
+  }
 }
 .aex-nav-brand {
   display: flex;
@@ -77,6 +80,20 @@ body {
   line-height: 1.2;
   color: var(--ink);
   white-space: nowrap;
+}
+/* Title doubles as the home link: heading look, subtle hover */
+a.aex-title {
+  display: inline-block;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+a.aex-title:hover {
+  opacity: 0.75;
+}
+a.aex-title:focus-visible {
+  outline: 2px solid rgba(224, 168, 60, 0.45);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 .aex-subtitle {
   font-size: 13px;

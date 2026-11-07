@@ -1277,25 +1277,23 @@ export function AgentDashboard() {
       <nav className="aex-nav">
        {/* Same container classes as the body (.aex-content) so both share identical left/right edges */}
        <div className="aex-content aex-nav-inner">
-        {/* Left: wordmark */}
+        <div className="aex-nav-card">
+        {/* Left: title (home link) + subtitle */}
         <div className="aex-nav-brand">
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={handleHome}
-            onKeyDown={e => e.key === 'Enter' && handleHome()}
-            title="Home"
-            style={{
-              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-              background: accent.dim,
-              border: `1px solid ${accent.border}`,
-              cursor: 'pointer', transition: 'opacity 0.12s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-            <span className="aex-title">Arc ERC-8004 Explorer</span>
+            <a
+              className="aex-title"
+              href="/"
+              title="Home"
+              onClick={e => {
+                // Let modified clicks (new tab/window) use the normal link behavior.
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+                e.preventDefault()
+                handleHome()
+              }}
+            >
+              Arc ERC-8004 Explorer
+            </a>
             <span className="aex-subtitle">Find and inspect agents on Arc</span>
           </div>
         </div>
@@ -1326,6 +1324,7 @@ export function AgentDashboard() {
           >
             ↺
           </button>
+        </div>
         </div>
        </div>
       </nav>
