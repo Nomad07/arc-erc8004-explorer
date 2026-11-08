@@ -10,7 +10,7 @@ An explorer for discovering and inspecting ERC-8004 agents on Arc Mainnet and Ar
 
 **Arc ERC-8004 Explorer** lets users and agents look up ERC-8004 agents by ID on Arc Mainnet or Arc Testnet. It displays identity (owner, agent wallet, metadata URI), reputation (clients, feedback, aggregate score), and validation data, all read live from the onchain registries.
 
-No wallet connection is required for the human Explorer. The paid API endpoint accepts Circle Gateway x402 micropayments.
+No wallet connection is required for the human Explorer. The paid API endpoint accepts x402 v2 USDC payments settled by Circle Facilitator Service.
 
 ---
 
@@ -19,7 +19,7 @@ No wallet connection is required for the human Explorer. The paid API endpoint a
 - **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, wagmi v2, viem v2, ConnectKit
 - **API:** Vercel serverless functions (TypeScript), viem public clients
 - **Contracts (imported, read-only):** Solidity 0.8.28, Foundry — sources in `contracts/imported/`, build with `bun run contracts:build`, test with `bun run contracts:test`
-- **Payment:** Circle Gateway Nanopayments, x402 Version 2, `@circle-fin/x402-batching`
+- **Payment:** x402 Version 2 `exact` (EIP-3009), Circle Facilitator Service, `@x402/core` / `@x402/evm` / `@x402/extensions` 2.27.0
 - **Fonts:** DM Sans, Space Grotesk, JetBrains Mono (Google Fonts)
 
 ---
@@ -56,17 +56,17 @@ No wallet connection is required for the human Explorer. The paid API endpoint a
 
 - Returns `410 Gone` for all requests. Use `/api/agent/paid` instead.
 
-### `GET /api/agent/paid` — x402, 0.01 USDC
+### `GET /api/agent/paid` — x402, 0.002 USDC
 
 - Parameters: `network=mainnet`, `agentId` (positive integer)
 - ERC-8004 data always resolved from Arc Mainnet regardless of payment network.
-- Payment via Circle Gateway Nanopayments, x402 Version 2.
+- Payment: x402 Version 2 `exact`, verified and settled once by Circle Facilitator Service (`https://api.circle.com/v1/facilitator/x402`). Data is returned only after Circle confirms settlement with a valid transaction hash on the expected network; ambiguous settlements are never retried. The server keeps no payment state (no replay store); see `docs/x402-audit-report.md`.
 - **Accepted payment networks (payer's choice):**
-  - Arc Mainnet — `eip155:5042` — USDC `0x3600000000000000000000000000000000000000`
-  - Base Mainnet — `eip155:8453` — USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
-  - Arbitrum One — `eip155:42161` — USDC `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`
-- GatewayWallet verifyingContract: `0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE` (same on all three networks)
-- Amount: `10000` units (0.01 USDC, 6 decimals)
+  - Arc Mainnet — `eip155:5042` — USDC `0x3600000000000000000000000000000000000000` (EIP-712 domain `USDC` / `2`)
+  - Base Mainnet — `eip155:8453` — USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (EIP-712 domain `USD Coin` / `2`)
+- Amount: `2000` units (0.002 USDC, 6 decimals), paid directly to `SELLER_ADDRESS`
+- Bazaar discovery extension in the 402 (`extensions.bazaar`); constants live in `api/_lib/x402-config.ts`
+- Tests: `bun test api`. Production smoke test (you run it, own wallet): `scripts/smoke-x402.ts`
 - Seller address: configured via `SELLER_ADDRESS` environment variable
 - No CDN cache (`Cache-Control: no-store`)
 
@@ -81,6 +81,7 @@ No wallet connection is required for the human Explorer. The paid API endpoint a
 | Variable         | Required | Description                                      |
 |------------------|----------|--------------------------------------------------|
 | `SELLER_ADDRESS` | Yes (paid endpoint) | EVM address that receives x402 USDC payments |
+| `CIRCLE_FACILITATOR_API_KEY` | Yes (paid endpoint) | Circle API key sent as a Bearer token to Circle Facilitator Service |
 
 ---
 

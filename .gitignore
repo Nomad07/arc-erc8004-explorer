@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+dist-ssr/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Environment files and secrets (keep documented examples)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+.circle/
+recovery_file*
+*.pem
+
+# Vercel local project link
+.vercel/
+
+# Arc Studio planning notes (local only)
+arc-studio-plans/
+
+# Local logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+console.jsonl
+traces.jsonl
+
+# Temporary files
+*.tmp
+*.tmp.*
+tmp-*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

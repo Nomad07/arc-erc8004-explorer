@@ -4,7 +4,7 @@ A read-only explorer and API for discovering and inspecting ERC-8004 agents on A
 
 **Live Explorer:** https://arcagents.app/
 
-<a href="https://agents.circle.com/sell/score?url=www.arcagents.app"><img src="https://img.shields.io/badge/Circle%20Agent%20Ready-100%2F100-0F6BFF?style=for-the-badge&logo=circle&logoColor=white" alt="Circle Agent Ready — 100/100"></a>
+[Check the current Circle agent-readiness score](https://agents.circle.com/sell/score?url=www.arcagents.app)
 
 ## Overview
 
@@ -15,7 +15,7 @@ A read-only explorer and API for discovering and inspecting ERC-8004 agents on A
 
 The Explorer supports ERC-8004 agent discovery and inspection on **Arc Mainnet** and **Arc Testnet**.
 
-The paid API uses **x402 Version 2** and **Circle Gateway** for machine-to-machine payments.
+The paid API uses **x402 Version 2** (`exact` scheme) with **Circle Facilitator Service** for machine-to-machine USDC payments.
 
 ## Access Model
 
@@ -46,7 +46,7 @@ The API is designed for:
 * Automated workflows
 * Programmatic integrations
 
-API access costs **$0.01 per call** and uses x402 payments through Circle Gateway.
+API access costs **$0.002 per successful request** (2000 atomic USDC units) and uses x402 payments verified and settled by Circle Facilitator Service.
 
 This keeps manual exploration free while providing a payment-based API for automated and programmatic access.
 
@@ -71,12 +71,11 @@ This keeps manual exploration free while providing a payment-based API for autom
 ### AI Agent API
 
 * Paid ERC-8004 agent resolver
-* x402 Version 2
-* Circle Gateway
-* Nanopayments
-* Multi-chain payment support
+* x402 Version 2 (`exact`, EIP-3009)
+* Circle Facilitator Service
+* USDC payments on Arc Mainnet and Base Mainnet
 * Machine-readable JSON responses
-* `$0.01` per call
+* `$0.002` per successful request
 * Strictly read-only ERC-8004 data access
 
 ## Supported Networks
@@ -111,11 +110,13 @@ The Explorer reads public onchain data and does not require users to connect a w
 
 The paid endpoint resolves ERC-8004 agent data from **Arc Mainnet**.
 
-**Price:** `$0.01 / call`
+**Price:** `$0.002 / successful request` (2000 atomic USDC units, 6 decimals)
 
-**Payment protocol:** x402 Version 2
+**Payment protocol:** x402 Version 2, `exact` scheme (EIP-3009 authorization)
 
-**Payment facilitator:** Circle Gateway
+**Payment facilitator:** Circle Facilitator Service
+
+USDC is paid directly to the seller address advertised in the payment requirements (`payTo`).
 
 Example:
 
@@ -123,68 +124,62 @@ Example:
 GET https://www.arcagents.app/api/agent/paid?network=mainnet&agentId=15
 ```
 
-An unpaid request returns `402 Payment Required` with the available x402 payment requirements.
+An unpaid request returns `402 Payment Required` with the available x402 payment requirements, including Bazaar discovery metadata (`extensions.bazaar`).
 
 ### Payment Networks
 
-The endpoint currently advertises three payment networks:
+The endpoint advertises two payment networks:
 
-| Payment network | CAIP-2         | USDC                                         |
-| --------------- | -------------- | -------------------------------------------- |
-| Arc Mainnet     | `eip155:5042`  | `0x3600000000000000000000000000000000000000` |
-| Base Mainnet    | `eip155:8453`  | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| Arbitrum One    | `eip155:42161` | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` |
+| Payment network | CAIP-2        | USDC                                         | EIP-712 domain (name / version) |
+| --------------- | ------------- | -------------------------------------------- | ------------------------------- |
+| Arc Mainnet     | `eip155:5042` | `0x3600000000000000000000000000000000000000` | `USDC` / `2`                    |
+| Base Mainnet    | `eip155:8453` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | `USD Coin` / `2`                |
 
-**Important:** ERC-8004 data is always resolved from **Arc Mainnet**. Base and Arbitrum are payment networks only.
+**Important:** ERC-8004 data is always resolved from **Arc Mainnet**. Base Mainnet is a payment network only. The EIP-712 domain name differs per network, so use `accepts[].extra` from the chosen entry when signing.
 
-### Current Payment Availability
+### Payment Availability
 
-**Base Mainnet and Arbitrum One currently support live payment settlement.**
+Arc Mainnet and Base Mainnet are both listed by Circle as supported for the x402 `exact` scheme on Facilitator Service.
 
-Arc Mainnet is included in the x402 payment requirements, but live Arc payment settlement is currently unavailable through the public Circle Gateway.
+Live settlement through this endpoint is pending production verification. A payment is only treated as complete when Circle confirms settlement with a transaction hash on the expected network. If settlement cannot be confirmed, the API returns no data and does not retry the settlement.
 
-This is a **Circle Gateway availability limitation, not an issue with the Arc ERC-8004 Explorer implementation**.
+The server keeps no payment state of its own. Clients built for the previous Circle Gateway batched scheme are no longer supported; use a standard x402 v2 `exact` (EIP-3009) client. The stock x402 client only signs assets it knows, so a buyer on Arc must explicitly allow the Arc USDC contract.
 
-The Arc payment configuration remains available in the endpoint requirements so the payment rail can be used when public Circle Gateway settlement becomes available.
+### Configuration
+
+The paid endpoint reads two server environment variables:
+
+* `SELLER_ADDRESS`: EVM address that receives the USDC payments
+* `CIRCLE_FACILITATOR_API_KEY`: Circle API key used to call Facilitator Service
 
 ## Payment Capabilities
-
-Circle currently verifies the endpoint with:
-
-* **Nanopayments**
-* **Multi-chain**
 
 The endpoint currently provides:
 
 * 1 paid endpoint
-* `$0.01 / call`
-* x402 Version 2
-* USDC payment requirements
-* Multi-network payment support
+* `$0.002 / successful request`
+* x402 Version 2, `exact` scheme
+* USDC payment requirements on Arc Mainnet and Base Mainnet
+* Bazaar discovery metadata in the `402` response
 
 ## Circle AI-Agent Readiness
 
-The paid API has been runtime-verified by Circle:
+Circle publishes an agent-readiness score for the paid API:
 
-| Metric          | Result                |
-| --------------- | --------------------- |
-| Readiness score | **100/100**           |
-| Trust tier      | **Runtime-verified**  |
-| Status          | **Fully agent-ready** |
-| Endpoints       | **1**                 |
-| Price           | **$0.01 / call**      |
+https://agents.circle.com/sell/score?url=www.arcagents.app
 
-Circle currently reports that there is nothing to improve for agent discovery and payment readiness.
+An earlier version of the paid API (using Circle Gateway) was reported as 100/100 and runtime-verified. The payment integration has since changed to Circle Facilitator Service, so that result is historical. The score for the current version has not been re-verified; check the link above for the current status.
 
 ## API Payment Flow
 
 1. An AI agent requests the paid endpoint.
 2. The API returns `402 Payment Required`.
 3. The response exposes the available payment requirements.
-4. The agent provides a valid x402 payment payload.
-5. Circle Gateway verifies and settles the payment.
-6. The API resolves the requested ERC-8004 agent from Arc Mainnet.
-7. The API returns the agent data as JSON.
+4. The agent provides a valid x402 payment payload (`PAYMENT-SIGNATURE` header).
+5. Circle Facilitator Service verifies the payment.
+6. The API resolves the requested ERC-8004 agent from Arc Mainnet. A missing agent is not charged.
+7. Circle Facilitator Service settles the payment once.
+8. Only after Circle confirms settlement with a transaction hash on the expected network, the API returns the agent data as JSON with a `PAYMENT-RESPONSE` header.
 
 The API is strictly read-only:
 
@@ -231,7 +226,7 @@ https://www.arcagents.app/api/openapi.json
 * viem
 * CSS
 * ERC-8004
-* Circle Gateway
+* Circle Facilitator Service
 * x402 Version 2
 * Vercel
 
@@ -253,6 +248,12 @@ Run checks:
 
 ```bash
 bun run check
+```
+
+Run the API tests (no network, no real payments):
+
+```bash
+bun run test
 ```
 
 ## Project Structure
@@ -297,7 +298,7 @@ The manual Explorer is free to use.
 
 The paid API is live for AI agents, bots, automated workflows, and programmatic integrations.
 
-The paid API is runtime-verified by Circle with a **100/100 agent-readiness score**.
+See Circle's agent-readiness page (linked above) for the current readiness status of the paid API.
 
 ## License
 
