@@ -41,23 +41,26 @@ body {
 
 /* ── Arc Agent Explorer — responsive layout ─────────────────────────────── */
 
-/* Header: a standalone card in the same container as the body (.aex-content
-   supplies max-width + horizontal padding), styled like .aex-search-card. */
+/* Header: one unified card (title + controls, divider, search) in the same
+   container as the body (.aex-content supplies max-width + horizontal padding). */
 .aex-nav-inner {
   max-width: 680px;
   margin: 0 auto;
   padding: 24px 16px 0;
 }
 .aex-nav-card {
+  background: #111316;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+/* Top row of the unified card: title + controls */
+.aex-nav-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 16px;
   padding: 16px;
-  background: #111316;
-  border: 1px solid var(--border);
-  border-radius: 12px;
 }
 @media (max-width: 480px) {
   .aex-nav-inner {
@@ -131,12 +134,10 @@ a.aex-title:focus-visible {
   display: flex;
   gap: 8px;
 }
-/* Search card: label, input row and example links share one surface */
+/* Search area: lives inside the unified header card, below a subtle divider */
 .aex-search-card {
   padding: 16px;
-  background: #111316;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border-top: 1px solid var(--border);
 }
 .aex-search-input:focus-visible,
 .aex-search-btn:focus-visible {

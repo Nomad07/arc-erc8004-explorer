@@ -601,6 +601,52 @@ function NetworkSelector({
   )
 }
 
+// ─── Collapsible data row (collapsed by default) ──────────────────────────────
+
+/** Same look and divider as DataRow, but the content is hidden until the header is clicked. */
+function CollapsibleRow({ label, accent, last = false, children }: {
+  label: string
+  accent: ReturnType<typeof getAccent>
+  last?: boolean
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+          padding: '13px 0', background: 'transparent', border: 'none',
+          cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase',
+          color: T.ink3, fontFamily: T.body,
+        }}>
+          {label}
+        </span>
+        <span style={{
+          fontSize: 14, color: open ? accent.color : T.ink3, flexShrink: 0,
+          transition: 'transform 0.18s, color 0.18s', display: 'inline-block',
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}>
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div style={{ paddingBottom: 13, fontSize: 13, fontWeight: 500, color: T.ink2, lineHeight: 1.55, fontFamily: T.body }}>
+          {children}
+        </div>
+      )}
+      {!last && <Divider />}
+    </div>
+  )
+}
+
 // ─── Reputation section ───────────────────────────────────────────────────────
 
 function ReputationSection({
@@ -685,7 +731,7 @@ function ReputationSection({
 
             {/* Feedback records — empty today for both agents; renders automatically when feedback exists */}
             {feedbackRecords.length > 0 && (
-              <DataRow label={`Feedback Records (${feedbackRecords.length})`} last={!hasClients}>
+              <CollapsibleRow label={`Feedback Records (${feedbackRecords.length})`} accent={accent} last={!hasClients}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
                   {feedbackRecords.map((fb) => (
                     <div key={`${fb.client}-${fb.index}`} style={{
@@ -735,7 +781,7 @@ function ReputationSection({
                     </div>
                   ))}
                 </div>
-              </DataRow>
+              </CollapsibleRow>
             )}
 
             {feedbackError && (
@@ -752,13 +798,13 @@ function ReputationSection({
             )}
 
             {hasClients && (
-              <DataRow label="Client Addresses" last>
+              <CollapsibleRow label={`Client Addresses (${clients.length})`} accent={accent} last>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
                   {(clients as readonly `0x${string}`[]).map(addr => (
                     <AddrChip key={addr} address={addr} chainId={chainId} accent={accent} />
                   ))}
                 </div>
-              </DataRow>
+              </CollapsibleRow>
             )}
           </>
         )}
@@ -1080,7 +1126,7 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
     null
 
   return (
-    <div className="aex-search-card" style={{ marginBottom: 14 }}>
+    <div className="aex-search-card">
       {/* Label row */}
       <div className="aex-search-label" style={{
         fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -1206,8 +1252,9 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
           </h1>
           <p style={{ ...bodyText, marginTop: 10 }}>
             Arc Agents is an explorer for discovering and inspecting AI agents registered on Arc.
-            Enter an Agent ID above, or pick an example, to view agent data directly from the onchain registries.
-            No wallet connection required.
+            Explore agent identity, ownership, wallet addresses, metadata, reputation, validation, and onchain
+            activity directly from the ERC-8004 registries. Enter an Agent ID above or pick an example to get
+            started. No wallet connection required.
           </p>
         </CardSection>
       </Card>
@@ -1479,7 +1526,9 @@ export function AgentDashboard() {
       <nav className="aex-nav">
        {/* Same container classes as the body (.aex-content) so both share identical left/right edges */}
        <div className="aex-content aex-nav-inner">
+        {/* One unified card: header controls on top, a subtle divider, then the search area */}
         <div className="aex-nav-card">
+        <div className="aex-nav-top">
         {/* Left: title (home link) + subtitle */}
         <div className="aex-nav-brand">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
@@ -1527,14 +1576,9 @@ export function AgentDashboard() {
             ↺
           </button>
         </div>
-        </div>
-       </div>
-      </nav>
+        </div>{/* end aex-nav-top */}
 
-      {/* ── BODY ────────────────────────────────────────────────────────── */}
-      <div className="aex-content" style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px 64px' }}>
-
-        {/* ── SEARCH ────────────────────────────────────────────────────── */}
+        {/* ── SEARCH (same card, below the header controls) ─────────────── */}
         <SearchBar
           value={searchInput}
           onChange={v => { setSearchInput(v); setSearchError(null) }}
@@ -1547,6 +1591,12 @@ export function AgentDashboard() {
           networkLabel={cfg.label}
           accent={accent}
         />
+        </div>
+       </div>
+      </nav>
+
+      {/* ── BODY ────────────────────────────────────────────────────────── */}
+      <div className="aex-content" style={{ maxWidth: 680, margin: '0 auto', padding: '14px 16px 64px' }}>
 
         {/* ── NOT FOUND STATE ──────────────────────────────────────────── */}
         {notFound && (
