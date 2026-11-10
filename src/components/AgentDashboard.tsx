@@ -1245,7 +1245,7 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
       <Card hero accent={accent}>
         <CardSection>
           <h1 style={{
-            margin: 0, fontFamily: T.display, fontSize: 24, fontWeight: 700,
+            margin: 0, fontFamily: T.display, fontSize: 'calc(var(--aex-title-size) * 0.75)', fontWeight: 700,
             color: T.ink, letterSpacing: '-0.04em', lineHeight: 1.1,
           }}>
             ERC-8004 Explorer

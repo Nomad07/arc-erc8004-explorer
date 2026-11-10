@@ -16,6 +16,13 @@
   --border-strong: rgba(255, 255, 255, 0.16);
   --success: #59c98a;
   --danger: #e86d7a;
+  /* Shared by the header title and the overview heading so they always match */
+  --aex-title-size: 20px;
+}
+@media (max-width: 400px) {
+  :root {
+    --aex-title-size: 18px;
+  }
 }
 
 * {
@@ -75,7 +82,7 @@ body {
 }
 .aex-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 20px;
+  font-size: var(--aex-title-size);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -112,12 +119,6 @@ a.aex-title:focus-visible {
     justify-content: space-between;
   }
 }
-@media (max-width: 400px) {
-  .aex-title {
-    font-size: 18px;
-  }
-}
-
 /* Network selector buttons: shrink label text on very small screens */
 .aex-net-btn {
   white-space: nowrap;
