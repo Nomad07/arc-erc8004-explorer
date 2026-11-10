@@ -14,8 +14,6 @@
   --subtle: #6b7078;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --accent: #e0a83c;
-  --accent-hover: #ecc06a;
   --success: #59c98a;
   --danger: #e86d7a;
 }
@@ -91,7 +89,7 @@ a.aex-title:hover {
   opacity: 0.75;
 }
 a.aex-title:focus-visible {
-  outline: 2px solid rgba(224, 168, 60, 0.45);
+  outline: 2px solid rgba(59, 167, 240, 0.45);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -142,7 +140,7 @@ a.aex-title:focus-visible {
 }
 .aex-search-input:focus-visible,
 .aex-search-btn:focus-visible {
-  outline: 2px solid rgba(224, 168, 60, 0.45);
+  outline: 2px solid rgba(59, 167, 240, 0.45);
   outline-offset: 1px;
 }
 /* Base height for both elements — controlled here so the mobile breakpoint can override cleanly */

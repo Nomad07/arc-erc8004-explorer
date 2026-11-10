@@ -166,7 +166,7 @@ const T = {
 // Network-aware accent — call once in AgentDashboard, thread down
 function getAccent(isMainnet: boolean) {
   return isMainnet
-    ? { color: '#e0a83c', dim: 'rgba(224,168,60,0.10)', border: 'rgba(224,168,60,0.26)', glow: 'rgba(224,168,60,0.06)' }
+    ? { color: '#3ba7f0', dim: 'rgba(59,167,240,0.11)', border: 'rgba(59,167,240,0.28)', glow: 'rgba(59,167,240,0.06)' }
     : { color: '#8fa6c4', dim: 'rgba(143,166,196,0.10)', border: 'rgba(143,166,196,0.24)', glow: 'rgba(143,166,196,0.06)' }
 }
 
@@ -1148,6 +1148,203 @@ function SearchBar({ value, onChange, onSearch, onExampleSelect, pending, error,
   )
 }
 
+// ─── Explorer overview (shown until an Agent ID is searched) ──────────────────
+
+/**
+ * Paid API facts shown on the overview. Mirrors api/_lib/x402-config.ts and
+ * api/agent/paid.ts (price, protocol, payment networks); keep them in sync.
+ */
+const PAID_API = {
+  endpoint:    'GET /api/agent/paid',
+  price:       '$0.002',
+  priceNote:   'USDC per successful request',
+  openApiPath: '/api/openapi.json',
+}
+
+/** `soon` marks planned features that are not implemented yet. */
+const INSPECT_ITEMS: Array<{ label: string; text: string; soon?: boolean }> = [
+  { label: 'Identity',   text: 'The agent ID, registered as an ERC-8004 identity on Arc.' },
+  { label: 'Ownership',  text: 'The owner address that holds the agent identity.' },
+  { label: 'Wallet',     text: 'The wallet address the agent has set for itself.' },
+  { label: 'Metadata',   text: 'The agent metadata URI, with a link to open it.' },
+  { label: 'Reputation', text: 'Clients, individual feedback entries, and the aggregate score.' },
+  { label: 'Validation', text: 'Validation requests and responses, where the network has a Validation Registry.' },
+  { label: 'Agent Discovery', text: 'Discover and explore registered agents across Arc networks, with search and filtering capabilities.', soon: true },
+  { label: 'Agent Activity',  text: 'Explore onchain agent registration events, metadata updates, and registry activity over time.', soon: true },
+]
+
+/** Fixed Mainnet blue for the "Coming soon" badges, whichever network is selected. */
+const MAINNET_BLUE = getAccent(true)
+
+function OverviewList({ items }: { items: string[] }) {
+  return (
+    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {items.map(text => (
+        <li key={text} style={{ display: 'flex', gap: 10, fontSize: 13, color: T.ink2, lineHeight: 1.55, fontFamily: T.body }}>
+          <span aria-hidden style={{ flexShrink: 0, width: 5, height: 5, borderRadius: '50%', background: T.ink4, marginTop: 8 }} />
+          <span>{text}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent: ReturnType<typeof getAccent> }) {
+  const bodyText: React.CSSProperties = { fontSize: 13, color: T.ink2, lineHeight: 1.65, fontFamily: T.body, margin: 0 }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+      {/* Intro */}
+      <Card hero accent={accent}>
+        <CardSection>
+          <h1 style={{
+            margin: 0, fontFamily: T.display, fontSize: 24, fontWeight: 700,
+            color: T.ink, letterSpacing: '-0.04em', lineHeight: 1.1,
+          }}>
+            ERC-8004 Explorer
+          </h1>
+          <p style={{ ...bodyText, marginTop: 10 }}>
+            Arc Agents is an explorer for discovering and inspecting AI agents registered on Arc.
+            Enter an Agent ID above, or pick an example, to view agent data directly from the onchain registries.
+            No wallet connection required.
+          </p>
+        </CardSection>
+      </Card>
+
+      {/* What you can inspect */}
+      <Card>
+        <CardSection>
+          <SectionLabel>What you can inspect</SectionLabel>
+          {/* 4 x 2 equal-width grid on desktop/tablet, 2 columns on phones, 1 on very narrow screens */}
+          <style>{`
+            .aex-inspect-grid { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+            @media (max-width: 640px) { .aex-inspect-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; } }
+            @media (max-width: 340px) { .aex-inspect-grid { grid-template-columns: minmax(0, 1fr); } }
+          `}</style>
+          <div className="aex-inspect-grid">
+            {INSPECT_ITEMS.map(({ label, text, soon }) => (
+              <div key={label} style={{
+                padding: '12px 14px', borderRadius: 9,
+                background: T.bgWell, border: `1px solid ${T.border}`,
+                display: 'flex', flexDirection: 'column', minWidth: 0,
+              }}>
+                <Label>{label}</Label>
+                <div style={{ fontSize: 12, color: T.ink2, lineHeight: 1.55, fontFamily: T.body }}>{text}</div>
+                {soon && (
+                  <div style={{ marginTop: 'auto', paddingTop: 10 }}>
+                    <span style={{
+                      display: 'inline-block', padding: '1px 6px', borderRadius: 100,
+                      fontSize: 9, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase',
+                      fontFamily: T.body, whiteSpace: 'nowrap',
+                      color: MAINNET_BLUE.color, background: MAINNET_BLUE.dim, border: `1px solid ${MAINNET_BLUE.border}`,
+                      opacity: 0.85,
+                    }}>
+                      Coming soon
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardSection>
+      </Card>
+
+      {/* Networks + free access */}
+      <Card>
+        <CardSection>
+          <SectionLabel>Arc Mainnet and Arc Testnet</SectionLabel>
+          <p style={{ ...bodyText, marginBottom: 14 }}>
+            <strong style={{ color: T.ink, fontWeight: 600 }}>Manual exploration is free on both networks.</strong>{' '}
+            Use the Mainnet / Testnet switch at the top to choose which network you search. Every lookup is a
+            read-only call to that network&rsquo;s registries, with no payment and no wallet.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+            {NETWORK_CONFIGS.map((n, i) => {
+              const active = i === activeIndex
+              const a = getAccent(n.chainId === 5042)
+              return (
+                <div key={n.chainId} style={{
+                  padding: '12px 14px', borderRadius: 9,
+                  background: active ? a.dim : T.bgWell,
+                  border: `1px solid ${active ? a.border : T.border}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontFamily: T.display, fontSize: 14, fontWeight: 700, color: T.ink, letterSpacing: '-0.02em' }}>
+                      {n.label}
+                    </span>
+                    {active && <Badge color={a.color} bg={a.dim} border={a.border}>Selected</Badge>}
+                  </div>
+                  <div className="tabular-nums" style={{ fontFamily: T.mono, fontSize: 11, color: T.ink3, marginBottom: 6 }}>
+                    Chain {n.chainId}
+                  </div>
+                  <div style={{ fontSize: 12, color: T.ink2, lineHeight: 1.55, fontFamily: T.body }}>
+                    {n.validationRegistry
+                      ? 'Identity, Reputation and Validation registries.'
+                      : 'Identity and Reputation registries. Validation Registry is not deployed on this network.'}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </CardSection>
+      </Card>
+
+      {/* Paid API */}
+      <Card>
+        <CardSection>
+          <SectionLabel>Paid API for agents and automation</SectionLabel>
+          <p style={{ ...bodyText, marginBottom: 14 }}>
+            Separate from the free Explorer, a paid API is intended for AI agents, bots, and automated integrations
+            that need agent data as JSON.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10, marginBottom: 14 }}>
+            <div style={{
+              background: accent.dim, border: `1px solid ${accent.border}`,
+              borderRadius: 10, padding: '14px 16px',
+              display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center',
+            }}>
+              <div className="tabular-nums" style={{
+                fontSize: 22, fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1.05,
+                color: T.ink, fontFamily: T.display,
+              }}>
+                {PAID_API.price}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: T.ink3, lineHeight: 1.4, fontFamily: T.body }}>
+                {PAID_API.priceNote}
+              </div>
+            </div>
+            <div style={{
+              padding: '14px 16px', borderRadius: 10, background: T.bgInner, border: `1px solid ${T.border}`,
+              display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center',
+            }}>
+              <Label>Endpoint</Label>
+              <code style={{ fontFamily: T.mono, fontSize: 12, color: T.ink2, wordBreak: 'break-all' }}>{PAID_API.endpoint}</code>
+            </div>
+          </div>
+          <OverviewList items={[
+            'Payments use x402 v2 with Circle Facilitator verification and settlement.',
+            'Pay in USDC on either Arc Mainnet or Base Mainnet.',
+            'The API always returns Arc Mainnet agent data. Base is only an alternative payment network, not a data network.',
+            'No paid Testnet API is offered or needed: Testnet agents are free to inspect in the Explorer.',
+            'An agent that does not exist is not charged.',
+          ]} />
+          <div style={{ marginTop: 14 }}>
+            <a
+              href={PAID_API.openApiPath}
+              target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 12, fontWeight: 600, color: accent.color, textDecoration: 'none', fontFamily: T.body }}
+            >
+              OpenAPI specification ↗
+            </a>
+          </div>
+        </CardSection>
+      </Card>
+
+    </div>
+  )
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export function AgentDashboard() {
@@ -1166,8 +1363,9 @@ export function AgentDashboard() {
   const [searchedId,   setSearchedId]   = useState<bigint | null>(initialLink?.agentId ?? null)
   const [searchError,  setSearchError]  = useState<string | null>(null)
 
-  // The agent currently being viewed: searched ID takes priority over the
-  // configured Finder Agent for this network.
+  // The agent currently being viewed. With no search the overview is shown and
+  // the registry reads below are disabled; cfg.agentId is only an inert
+  // placeholder argument and is never fetched.
   const activeAgentId = searchedId ?? cfg.agentId
 
   // ── Counts ────────────────────────────────────────────────────────────────
@@ -1239,6 +1437,8 @@ export function AgentDashboard() {
       { address: cfg.identityRegistry, abi: identityAbi, functionName: 'getAgentWallet', args: [activeAgentId], chainId: cfg.chainId },
       { address: cfg.identityRegistry, abi: identityAbi, functionName: 'tokenURI',       args: [activeAgentId], chainId: cfg.chainId },
     ],
+    // No registry read until the user actually searches for an Agent ID.
+    query: { enabled: searchedId !== null },
   })
 
   // Detect not-found: ownerOf did not succeed while a search is active and
@@ -1257,6 +1457,8 @@ export function AgentDashboard() {
   const [refreshing,  setRefreshing]  = useState(false)
 
   const handleRefresh = () => {
+    // Overview state (no searched Agent ID): nothing is loaded, so nothing to refresh.
+    if (searchedId === null) return
     setRefreshing(true)
     void refetch().finally(() => {
       setLastRefresh(Date.now())
@@ -1367,7 +1569,7 @@ export function AgentDashboard() {
                     onClick={() => { setSearchInput(''); setSearchedId(null); setSearchError(null) }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: accent.color, fontSize: 12, padding: 0, fontFamily: T.body }}
                   >
-                    return to the default agent
+                    return to the overview
                   </button>.
                 </div>
               </div>
@@ -1375,8 +1577,13 @@ export function AgentDashboard() {
           </Card>
         )}
 
+        {/* ── OVERVIEW (no Agent ID searched) ───────────────────────────── */}
+        {searchedId === null && (
+          <ExplorerOverview activeIndex={networkIndex} accent={accent} />
+        )}
+
         {/* ── MAIN CONTENT ──────────────────────────────────────────────── */}
-        {!notFound && (<>
+        {!notFound && searchedId !== null && (<>
 
         {/* Tablet two-column grid: hero left, registries+details right */}
         <div className="aex-tablet-grid">
