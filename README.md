@@ -1,77 +1,45 @@
 # Arc ERC-8004 Explorer
 
-A read-only explorer and paid API for discovering, exploring, and inspecting ERC-8004 agents on Arc. Browse agent identities, ownership, wallets, metadata, reputation, and available validation data on Arc Mainnet and Arc Testnet, or access agent data programmatically through the API using x402 payments on Arc and Base.
+An ERC-8004 Explorer for **Arc Mainnet and Arc Testnet**, with a paid API for programmatic access to agent data. The web Explorer lets users search and inspect agents on both networks. The API resolves ERC-8004 data from **Arc Mainnet** and accepts x402 payments on **Arc Mainnet and Base Mainnet**.
 
 ## Overview
 
-**Arc ERC-8004 Explorer** provides two ways to access ERC-8004 agent data:
+Arc ERC-8004 Explorer provides two ways to access ERC-8004 agent data:
 
-- **Free manual Explorer** for people.
-- **Paid API** for AI agents, bots, automated workflows, and programmatic integrations.
-
-The Explorer supports ERC-8004 agent discovery and inspection on **Arc Mainnet** and **Arc Testnet**.
+- **Free Explorer:** Manual search and inspection through the web interface.
+- **Paid API:** Programmatic access for AI agents, bots, automated workflows, and integrations.
 
 The paid API uses **x402 Version 2** (`exact` scheme) with the **Ultravioleta DAO facilitator** for machine-to-machine USDC payments.
 
 Live production payments through the Ultravioleta DAO facilitator have been successfully verified on both Arc Mainnet and Base Mainnet.
 
-### Access Model
-
-#### Free Manual Explorer
-
-**Free for everyone.**
-
-Users can manually search and inspect ERC-8004 agents through the web interface.
-
-The Explorer provides:
-
-- Agent identity
-- Agent owner
-- Agent wallet
-- Metadata
-- Reputation
-- Validation data
-- Direct onchain explorer links
-
-#### Paid API for Agents and Automation
-
-The API is designed for:
-
-- AI agents
-- Bots
-- Automated workflows
-- Programmatic integrations
-
-API access costs **$0.002 per successful request** and uses x402 payments through the Ultravioleta DAO facilitator.
-
-No facilitator account or API key is required.
-
 ## Features
 
 ### Explorer
 
-- Search ERC-8004 agents by Agent ID
-- Arc Mainnet and Arc Testnet support
-- ERC-8004 Identity Registry data
-- Agent owner and agent wallet
-- Agent metadata URI
-- Reputation feedback and aggregate score
-- Validation requests and responses
-- Direct links to Arc Explorer
+The web interface supports manual discovery and inspection of ERC-8004 agents on Arc Mainnet and Arc Testnet.
+
+- Search agents by Agent ID
+- Read ERC-8004 Identity Registry data
+- Inspect agent ownership and wallet addresses
+- View agent metadata and metadata URI
+- Inspect reputation feedback and aggregate scores
+- View available validation requests and responses where supported by the network
+- Open direct links to Arc Explorer
 - Copy agent and registry addresses
 - Responsive desktop, tablet, and mobile layouts
-- Onchain agent data
-- Not-found handling for invalid Agent IDs
+- Onchain data with not-found handling for invalid Agent IDs
 
 ### AI Agent API
+
+A paid API for programmatic access to ERC-8004 agent data.
 
 - Paid ERC-8004 agent resolver
 - x402 Version 2 (`exact`, EIP-3009)
 - Ultravioleta DAO x402 facilitator
-- USDC payments on Arc Mainnet and Base Mainnet
+- USDC payment support on Arc Mainnet and Base Mainnet
 - Machine-readable JSON responses
-- `$0.002` per successful request
-- ERC-8004 data from Arc Mainnet
+- ERC-8004 data resolved from Arc Mainnet
 
 ### Poncho Integration
 
@@ -87,11 +55,11 @@ AI agents can query ERC-8004 agent data through Poncho, including:
 - Reputation feedback and aggregate score
 - Available validation requests and responses
 
-Agent IDs are provided directly in the conversation.
+Users provide Agent IDs directly in the conversation. Poncho does not automatically select Agent IDs.
 
 **Poncho payment support:** USDC payments on Base Mainnet only. Arc Mainnet wallet payments are not yet supported through Poncho.
 
-The Arc ERC-8004 Explorer API itself supports x402 payments on both **Arc Mainnet** and **Base Mainnet**.
+This is a limitation of the Poncho integration. The underlying API supports x402 payments on both Arc Mainnet and Base Mainnet.
 
 ## Supported Networks
 
@@ -116,7 +84,7 @@ The Arc ERC-8004 Explorer API itself supports x402 payments on both **Arc Mainne
 1. Select **Arc Mainnet** or **Arc Testnet**.
 2. Enter an ERC-8004 Agent ID.
 3. The Explorer reads the agent from the selected Identity Registry.
-4. Identity, reputation, metadata, and validation data are loaded.
+4. Available identity, reputation, metadata, and validation data are loaded.
 5. Use the explorer links to inspect the underlying onchain records.
 
 ## Paid API
@@ -125,17 +93,15 @@ The Arc ERC-8004 Explorer API itself supports x402 payments on both **Arc Mainne
 
 `GET /api/agent/paid`
 
-Retrieve ERC-8004 agent identity and registration data from Arc Mainnet through x402 v2 payments.
+The endpoint retrieves ERC-8004 agent identity and registration data from **Arc Mainnet** through x402 v2 payments.
 
-The paid endpoint returns data from **Arc Mainnet only**. It does not provide Arc Testnet data. Testnet agents can be inspected through the free manual Explorer.
+The paid API does not provide Arc Testnet data. Testnet agents can be inspected through the free manual Explorer.
 
 ### Pricing and Payment
 
-**Price:** `$0.002` per successful request (2000 atomic USDC units, 6 decimals).
-
-**Payment protocol:** x402 Version 2, `exact` scheme (EIP-3009 authorization).
-
-**Payment facilitator:** Ultravioleta DAO.
+- **Price:** `$0.002` per successful request (2000 atomic USDC units, 6 decimals).
+- **Payment protocol:** x402 Version 2, `exact` scheme (EIP-3009 authorization).
+- **Payment facilitator:** Ultravioleta DAO.
 
 Facilitator: [https://facilitator.ultravioletadao.xyz](https://facilitator.ultravioletadao.xyz)
 
@@ -153,7 +119,7 @@ After successful payment, the API returns the requested agent data as JSON.
 
 ### Supported Payment Networks
 
-The endpoint supports two payment networks:
+The endpoint accepts payments on two networks:
 
 | Payment Network | CAIP-2 | USDC Contract | EIP-712 Domain |
 | --- | --- | --- | --- |
@@ -172,7 +138,7 @@ The Ultravioleta DAO facilitator does not require an API key.
 
 ## Circle Agent Readiness
 
-Arc ERC-8004 Explorer currently has a **100/100 Circle Agent Readiness score**.
+Arc ERC-8004 Explorer has a **100/100 Circle Agent Readiness score**.
 
 [View the Circle Agent Readiness assessment](https://agents.circle.com/sell/score?url=www.arcagents.app)
 
@@ -186,7 +152,7 @@ The paid API operation includes payment information describing the fixed `$0.002
 
 ## Discovery
 
-The paid endpoint publishes Bazaar discovery metadata in its `402 Payment Required` response, including the request parameters, response example, JSON Schemas, service name, description, tags, and icon.
+The paid endpoint publishes Bazaar discovery metadata in its `402 Payment Required` response, including request parameters, response examples, JSON Schemas, service name, description, tags, and icon.
 
 Listings:
 
