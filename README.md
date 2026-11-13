@@ -1,10 +1,6 @@
 # Arc ERC-8004 Explorer
 
-A read-only explorer and paid API for discovering and inspecting ERC-8004 agents on Arc.
-
-**Live Explorer:** [https://www.arcagents.app/](https://www.arcagents.app/)
-
-**Circle Agent Readiness:** [100/100](https://agents.circle.com/sell/score?url=www.arcagents.app)
+A read-only explorer and paid API for discovering, exploring, and inspecting ERC-8004 agents on Arc. Browse agent identities, ownership, wallets, metadata, reputation, and available validation data on Arc Mainnet and Arc Testnet, or access agent data programmatically through the API using x402 payments on Arc and Base.
 
 ## Overview
 
@@ -76,6 +72,26 @@ No facilitator account or API key is required.
 - Machine-readable JSON responses
 - `$0.002` per successful request
 - ERC-8004 data from Arc Mainnet
+
+### Poncho Integration
+
+**Arc ERC-8004 Explorer is available on Poncho.**
+
+[Open Arc ERC-8004 Explorer on Poncho](https://tryponcho.com/m/arcagents.app)
+
+AI agents can query ERC-8004 agent data through Poncho, including:
+
+- Agent identity and registration
+- Owner and wallet addresses
+- Metadata and metadata URI
+- Reputation feedback and aggregate score
+- Available validation requests and responses
+
+Agent IDs are provided directly in the conversation.
+
+**Poncho payment support:** USDC payments on Base Mainnet only. Arc Mainnet wallet payments are not yet supported through Poncho.
+
+The Arc ERC-8004 Explorer API itself supports x402 payments on both **Arc Mainnet** and **Base Mainnet**.
 
 ## Supported Networks
 
