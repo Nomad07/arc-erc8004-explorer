@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://arcagents.app/sitemap.xml
+Sitemap: https://www.arcagents.app/sitemap.xml

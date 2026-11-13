@@ -23,6 +23,6 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   return res.status(410).json({
     error:   'gone',
     message: 'GET /api/agent has been retired. Use GET /api/agent/paid instead.',
-    docs:    'https://arcagents.app/api/openapi.json',
+    docs:    'https://www.arcagents.app/api/openapi.json',
   })
 }

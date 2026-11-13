@@ -201,7 +201,7 @@ export async function resolveAgent(
     },
     links: {
       explorer:        cfg.explorerBase,
-      agentOnExplorer: `https://arcagents.app/agent/${agentId}?network=${networkKey}`,
+      agentOnExplorer: `https://www.arcagents.app/agent/${agentId}?network=${networkKey}`,
     },
     fetchedAt: new Date().toISOString(),
   }

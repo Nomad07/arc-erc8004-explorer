@@ -40,7 +40,7 @@ const spec = {
       'ENDPOINT — GET /api/agent/paid',
       '  Required: network=mainnet, agentId (positive integer)',
       `  Cost: ${PRICE_USD} USDC per successful request (${PRICE_ATOMIC} atomic units, 6 decimals)`,
-      '  Payment: x402 Version 2, scheme "exact" (EIP-3009 transferWithAuthorization), verified and settled by Circle Facilitator Service. USDC is paid directly to the seller address in payTo.',
+      '  Payment: x402 Version 2, scheme "exact" (EIP-3009 transferWithAuthorization), verified and settled by the Ultravioleta DAO facilitator. USDC is paid directly to the seller address in payTo.',
       '  Accepted payment networks (payer\'s choice — ERC-8004 data always comes from Arc Mainnet):',
       ...PAYMENT_NETWORKS.map(n => `    • ${n.name.padEnd(12)} — ${n.caip2.padEnd(11)} — USDC ${n.asset} (EIP-712 domain: name "${n.domainName}", version "${n.domainVersion}"; amount = ${PRICE_ATOMIC})`),
       '  The EIP-712 domain name differs per network; copy accepts[].extra.name and accepts[].extra.version from the chosen entry.',
@@ -49,13 +49,17 @@ const spec = {
       `         3) Choose one payment network. Sign an EIP-3009 authorization for ${PRICE_ATOMIC} USDC units on that network.`,
       '         4) Base64-encode the signed payload → PAYMENT-SIGNATURE header.',
       '         5) Resend GET with PAYMENT-SIGNATURE → receive 200 AgentResponse and a PAYMENT-RESPONSE header on success.',
-      '  A 404 or 503 is returned before settlement and is never charged. A 503 payment_pending means settlement is not confirmed: no data is returned, do not pay again until the payment status is checked.',
+      '  A 404 or a 503 rpc_error is returned before settlement and is never charged. Payment verification and settlement are done by the Ultravioleta DAO facilitator through its official SDK; answers use the SDK formats. 402 {error: Payment verification failed} = the facilitator refused the payment. 503 (Retry-After) = no final result yet (verification unavailable, authorization in flight, settlement pending or ambiguous): do NOT sign a new payment; resend the IDENTICAL request with the same signed payment (and the same X-UVD-Purchase if you sent one). 409 = the authorization was already used or belongs to another purchase. 500 {error: Payment settlement failed} = settlement failed or could not be confirmed; any transaction hash is in the body. A settlement problem is never a new 402 challenge.',
       '  Returns: AgentResponse (identity, metadata, reputation, validation).',
       '  Mainnet only: network=testnet returns 400.',
       '',
       'WHEN TO CALL:',
       '  - Call /api/agent/paid to resolve ERC-8004 agent identity, metadata, reputation, and validation data.',
       '  - The endpoint is read-only and safe to call without fear of side effects.',
+      '',
+      'DISCOVERY: the 402 challenge carries Bazaar metadata (extensions.bazaar). Third-party catalogues (a listing is not proof of a completed live payment):',
+      '  Ultravioleta DAO Bazaar: https://facilitator.ultravioletadao.xyz/bazaar?q=www.arcagents.app',
+      '  x402 Bazaar: https://x402-bazaar.com/resources/6af36d3129802b0f3634caf5',
       '',
       'AGENT IDs: on Arc Mainnet, confirmed agents include #1, #8, #14, #15.',
       'A 404 means the agent ID is not minted on Arc Mainnet.',
@@ -66,15 +70,14 @@ const spec = {
     url:         'https://www.arcagents.app',
   },
   servers: [
-    { url: 'https://www.arcagents.app', description: 'Production' },
-    { url: 'https://arcagents.app',     description: 'Production (bare domain)' },
+    { url: 'https://www.arcagents.app', description: 'Production (also the x402 payment resource host: the 402 challenge resource.url)' },
   ],
   paths: {
     '/api/agent/paid': {
       get: {
         operationId: 'getAgentPaid',
-        summary:     `Resolve an ERC-8004 agent by ID (paid, ${PRICE_USD} USDC)`,
-        description: `Returns ERC-8004 agent identity, metadata, reputation, and validation data. Requires an x402 v2 "exact" payment of ${PRICE_USD} USDC (${PRICE_ATOMIC} atomic units) verified and settled by Circle Facilitator Service, paid directly to the seller address. ERC-8004 data is always resolved from Arc Mainnet (network=mainnet). Payment can be made on either of two networks: ${PAYMENT_NETWORKS.map(n => `${n.name} (${n.caip2}, USDC ${n.asset})`).join(' or ')}. The 402 response lists both networks in accepts[] and carries Bazaar discovery metadata in extensions.bazaar. Only network=mainnet is accepted as the ERC-8004 data network. Requires a PAYMENT-SIGNATURE header containing a base64-encoded x402 Version 2 payment payload; a successful response includes a PAYMENT-RESPONSE header with the settlement transaction.`,
+        summary:     `Retrieve ERC-8004 agent data from Arc Mainnet (paid, ${PRICE_USD} USDC)`,
+        description: `Retrieve ERC-8004 agent identity and registration data from Arc Mainnet through x402 v2 payments. Returns identity, metadata, reputation, and validation data for one agent ID. Requires an x402 v2 "exact" payment of ${PRICE_USD} USDC (${PRICE_ATOMIC} atomic units) verified and settled by the Ultravioleta DAO facilitator, paid directly to the seller address. ERC-8004 data is always resolved from Arc Mainnet (network=mainnet). Payment can be made on either of two networks: ${PAYMENT_NETWORKS.map(n => `${n.name} (${n.caip2}, USDC ${n.asset})`).join(' or ')}. The 402 response lists both networks in accepts[] and carries Bazaar discovery metadata in extensions.bazaar. Only network=mainnet is accepted as the ERC-8004 data network. Requires a PAYMENT-SIGNATURE header containing a base64-encoded x402 Version 2 payment payload; a successful response includes a PAYMENT-RESPONSE header with the settlement transaction.`,
         'x-payment-info': {
           price: {
             mode:     'fixed',
@@ -86,6 +89,11 @@ const spec = {
           ],
         },
         parameters: [
+          {
+            name: 'X-UVD-Purchase', in: 'header', required: false,
+            description: 'Optional purchase context for recovering a lost or uncertain settlement (Ultravioleta SDK fetchWithReceipt): base64 JSON {purchaseId, accessToken, method, url, bodySha256} bound to this exact GET request (full URL including network and agentId, empty body). Send it with PAYMENT-SIGNATURE and resend it unchanged on retries. A context that does not match the request returns 400 receipt_context_mismatch.',
+            schema: { type: 'string', maxLength: 8192 },
+          },
           {
             name: 'network', in: 'query', required: true,
             description: "Must be 'mainnet'. The paid endpoint resolves ERC-8004 data from Arc Mainnet only.",
@@ -112,11 +120,11 @@ const spec = {
             },
           },
           '400': {
-            description: 'Invalid or missing query parameters, or network=testnet was requested.',
+            description: 'Invalid or missing query parameters, network=testnet was requested, or X-UVD-Purchase does not match the request (error: receipt_context_mismatch).',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           },
           '402': {
-            description: 'Payment required or payment rejected. The PAYMENT-REQUIRED header contains a base64-encoded x402 Version 2 payment requirements object that also carries the Bazaar discovery metadata in extensions.bazaar (abbreviated in the example below). When a submitted payment is rejected or fails to settle, the body is an ErrorResponse (error: payment_invalid or payment_failed) and the PAYMENT-REQUIRED header is still returned.',
+            description: 'Payment required or payment rejected. The PAYMENT-REQUIRED header contains a base64-encoded x402 Version 2 payment requirements object that also carries the Bazaar discovery metadata in extensions.bazaar (abbreviated in the example below). When a submitted payment is malformed, does not match an accepted option, or is refused at verification, the body is an error (payment_invalid, or Payment verification failed with the facilitator reason) and the PAYMENT-REQUIRED header is still returned. A settlement failure is never a 402.',
             headers: {
               'PAYMENT-REQUIRED': {
                 description: `Base64-encoded JSON payment requirements (x402 Version 2). Decode to read accepts[], which lists two payment options: ${PAYMENT_NETWORKS.map(n => `${n.name} (${n.caip2})`).join(' and ')}. Choose one, sign an EIP-3009 authorization for ${PRICE_ATOMIC} USDC units on that network using the EIP-712 domain in accepts[].extra, base64-encode the payload, and resend as the PAYMENT-SIGNATURE header.`,
@@ -163,11 +171,15 @@ const spec = {
             content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           },
           '500': {
-            description: 'Unexpected server error.',
+            description: 'Unexpected server error, or error: Payment settlement failed: settlement failed or could not be confirmed (retryable: false, no Retry-After; includes a 202 settlement_in_progress without a pending receipt and a receipt that is not confirmed). A failure the facilitator itself states also carries a PAYMENT-RESPONSE with success: false and its errorReason. No data is returned. Do not sign a new payment; any transaction hash, errorCode and paymentId are in the body.',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          },
+          '409': {
+            description: 'error: Payment authorization already used (reason: authorization_already_settled), or Payment request conflict (reason: receipt_request_conflict): the authorization was used or admitted for a different purchase. No data is returned, nothing is settled again, retryable: false. Do not sign another payment.',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           },
           '503': {
-            description: 'Not charged: the RPC call failed, or the payment service could not verify the payment (error: rpc_error or payment_service_unavailable). Also returned as error: payment_pending when settlement is not confirmed; no data is returned and the settlement is never retried by the server, so do not pay again until the payment status is checked.',
+            description: 'Not charged or not final. Before settlement: the RPC call failed (rpc_error), verification was unavailable (error: Payment verification unavailable), the authorization is in flight (reason: authorization_in_flight), or there was no time left to settle. After a settle attempt: error: Payment settlement unavailable (the SDK flagged the result retryable: pending or unknown receipt, timeout or lost connection, 429/503). Always with Retry-After and retryable: true. Do not sign a new payment; resend the identical request with the same signed payment (and the same X-UVD-Purchase if you sent one). No PAYMENT-RESPONSE is sent.',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           },
         },
@@ -294,7 +306,7 @@ const spec = {
         description: `x402 Version 2 payment requirements. Returned as the 402 body and in the base64-encoded PAYMENT-REQUIRED header. accepts[] contains one entry per supported payment network (${PAYMENT_NETWORKS.map(n => `${n.name} ${n.caip2}`).join(' and ')}). ERC-8004 data is always resolved from Arc Mainnet regardless of which payment network is used.`,
         properties: {
           x402Version: { type: 'integer', enum: [2] },
-          error:       { type: 'string', description: 'Present when a submitted payment was rejected (payment_invalid or payment_failed).' },
+          error:       { type: 'string', description: 'Present when a submitted payment was rejected (payment_invalid or Payment verification failed).' },
           resource: {
             type: 'object',
             properties: {

@@ -1370,7 +1370,7 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
             </div>
           </div>
           <OverviewList items={[
-            'Payments use x402 v2 with Circle Facilitator verification and settlement.',
+            'Payments use x402 v2 with Ultravioleta DAO facilitator verification and settlement.',
             'Pay in USDC on either Arc Mainnet or Base Mainnet.',
             'The API always returns Arc Mainnet agent data. Base is only an alternative payment network, not a data network.',
             'No paid Testnet API is offered or needed: Testnet agents are free to inspect in the Explorer.',

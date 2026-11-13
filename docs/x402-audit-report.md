@@ -1,3 +1,5 @@
+> **Historical document (2026-10-12).** This audit covers the earlier Circle Gateway batched-payment implementation (`@circle-fin/x402-batching`, `gateway-api.circle.com`). That integration has been replaced: the paid endpoint now uses the Ultravioleta DAO facilitator (`https://facilitator.ultravioletadao.xyz`, x402 v2 `exact`, $0.002 USDC on Arc Mainnet and Base Mainnet). The findings below do not describe the current payment flow; see `README.md` and `AGENTS.md`.
+
 # x402 Payment Handler Audit — `api/agent/paid.ts`
 
 **Date:** 2026-10-12  

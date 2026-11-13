@@ -4,10 +4,12 @@
  * Single source of truth shared by the handler, the OpenAPI document, the tests
  * and scripts/smoke-x402.ts.
  *
- * Payments: x402 v2 `exact` (EIP-3009) settled by Circle Facilitator Service.
- * Networks: Arc Mainnet and Base Mainnet only. The USDC addresses and EIP-712
- * domain values below match Circle's published GET /v1/facilitator/x402/supported
- * response and https://developers.circle.com/facilitator-service/supported-networks.
+ * Payments: x402 v2 `exact` (EIP-3009) verified and settled by the Ultravioleta DAO
+ * facilitator (https://facilitator.ultravioletadao.xyz).
+ * Networks: Arc Mainnet and Base Mainnet only. The USDC addresses below match the
+ * facilitator's published GET /supported response (exact, x402 v2, eip155:5042 and
+ * eip155:8453). The EIP-712 domain values are supplied by this seller in `extra`
+ * (the facilitator's /supported lists tokens but not the signing domain).
  *
  * The addresses in this file are documented constants and a real registry
  * response used as a discovery example, not secrets or wallet configuration.
@@ -18,7 +20,7 @@ export const RESOURCE_URL = 'https://www.arcagents.app/api/agent/paid'
 // ── Service metadata (carried in the 402 `resource` object / Bazaar catalog) ──
 export const SERVICE_NAME = 'Arc ERC-8004 Explorer'
 export const SERVICE_DESCRIPTION =
-  'Explore and retrieve ERC-8004 agent identity and registration data on Arc Mainnet and Testnet.'
+  'Retrieve ERC-8004 agent identity and registration data from Arc Mainnet through x402 v2 payments.'
 export const SERVICE_TAGS = ['arc', 'erc-8004', 'agents', 'blockchain', 'identity']
 // Existing public project icon (public/icon-512.png).
 export const SERVICE_ICON_URL = 'https://www.arcagents.app/icon-512.png'
@@ -28,8 +30,8 @@ export const PRICE_USD = '0.002'
 export const PRICE_ATOMIC = '2000' // 0.002 USDC at 6 decimals
 export const MAX_TIMEOUT_SECONDS = 60
 
-// ── Circle Facilitator Service ────────────────────────────────────────────────
-export const FACILITATOR_BASE_URL = 'https://api.circle.com/v1/facilitator/x402'
+// ── Facilitator: Ultravioleta DAO (no account, no API key) ───────────────────
+export const FACILITATOR_BASE_URL = 'https://facilitator.ultravioletadao.xyz'
 
 export interface PaymentNetwork {
   key:           'arc' | 'base'
@@ -88,7 +90,7 @@ export const AGENT_RESPONSE_SCHEMA = {
   required: ['agentId', 'network', 'chainId', 'identity', 'metadata', 'metadataError', 'reputation', 'validation', 'links', 'fetchedAt'],
   properties: {
     agentId:  { type: 'integer', description: 'ERC-8004 token ID.' },
-    network:  { type: 'string', enum: ['mainnet', 'testnet'], description: "ERC-8004 data network ('mainnet' on this endpoint)." },
+    network:  { type: 'string', enum: ['mainnet'], description: "ERC-8004 data network: always 'mainnet' (Arc Mainnet) on this endpoint." },
     chainId:  { type: 'integer', description: 'EVM chain ID the data was read from (5042 for Arc Mainnet).' },
     identity: {
       type: 'object',
@@ -213,7 +215,7 @@ export const DISCOVERY_OUTPUT_EXAMPLE = {
   },
   links: {
     explorer: 'https://explorer.arc.io',
-    agentOnExplorer: 'https://arcagents.app/agent/15?network=mainnet',
+    agentOnExplorer: 'https://www.arcagents.app/agent/15?network=mainnet',
   },
   fetchedAt: '2026-11-07T20:16:40.511Z',
 } as const
