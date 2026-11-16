@@ -1235,6 +1235,99 @@ function OverviewList({ items }: { items: string[] }) {
   )
 }
 
+// ─── MCP server section (overview) ────────────────────────────────────────────
+
+const MCP_INSTALL_COMMAND = 'npx -y arcagents-mcp@1.0.1'
+const MCP_LINKS = [
+  { label: 'GitHub',              href: 'https://github.com/Nomad07/arcagents-mcp' },
+  { label: 'npm',                 href: 'https://www.npmjs.com/package/arcagents-mcp' },
+  { label: 'Official MCP Registry', href: 'https://registry.modelcontextprotocol.io/?q=arcagents-mcp' },
+]
+
+/** Terminal-style install command with syntax colours and a one-click copy button. */
+function McpInstallBlock({ accent }: { accent: ReturnType<typeof getAccent> }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle')
+
+  const settle = (next: 'copied' | 'failed') => {
+    setState(next)
+    setTimeout(() => setState('idle'), 1800)
+  }
+
+  const copy = () => {
+    // The Clipboard API can be unavailable or blocked (for example inside an iframe): fall back to execCommand.
+    const fallback = () => {
+      const ta = document.createElement('textarea')
+      ta.value = MCP_INSTALL_COMMAND
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      let ok = false
+      try { ok = document.execCommand('copy') } catch { ok = false }
+      document.body.removeChild(ta)
+      settle(ok ? 'copied' : 'failed')
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(MCP_INSTALL_COMMAND).then(() => settle('copied'), fallback)
+    } else {
+      fallback()
+    }
+  }
+
+  const copied = state === 'copied'
+  return (
+    <div className="aex-mcp-terminal" style={{
+      borderRadius: 10, overflow: 'hidden',
+      background: '#0a0b0d', border: `1px solid ${T.borderMid}`,
+    }}>
+      {/* Title bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+        padding: '6px 8px 6px 14px', background: '#101215', borderBottom: `1px solid ${T.border}`,
+      }}>
+        <span aria-hidden style={{ display: 'inline-flex', gap: 6 }}>
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(255,255,255,0.14)' }} />
+          ))}
+        </span>
+        <button
+          type="button"
+          onClick={copy}
+          className="aex-mcp-copy"
+          aria-label={copied ? 'Install command copied' : 'Copy install command'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            minHeight: 36, padding: '0 12px', borderRadius: 7, cursor: 'pointer',
+            fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', fontFamily: T.body,
+            background: copied ? T.greenDim : T.bgInner,
+            border: `1px solid ${copied ? T.greenB : state === 'failed' ? T.redB : T.border}`,
+            color: copied ? T.green : state === 'failed' ? T.red : accent.color,
+            transition: 'all 0.12s',
+          }}
+        >
+          {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+          <span aria-live="polite">{copied ? 'Copied' : state === 'failed' ? 'Copy failed' : 'Copy'}</span>
+        </button>
+      </div>
+
+      {/* Command line (scrolls sideways instead of wrapping on very narrow screens) */}
+      <pre style={{
+        margin: 0, padding: '14px 16px', overflowX: 'auto',
+        fontFamily: T.mono, fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre',
+      }}>
+        <code>
+          <span aria-hidden style={{ color: T.ink4, userSelect: 'none' }}>$ </span>
+          <span style={{ color: T.green }}>npx</span>{' '}
+          <span style={{ color: accent.color }}>-y</span>{' '}
+          <span style={{ color: T.ink }}>arcagents-mcp</span>
+          <span style={{ color: T.ink3 }}>@1.0.1</span>
+        </code>
+      </pre>
+    </div>
+  )
+}
+
 function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent: ReturnType<typeof getAccent> }) {
   const bodyText: React.CSSProperties = { fontSize: 13, color: T.ink2, lineHeight: 1.65, fontFamily: T.body, margin: 0 }
 
@@ -1294,6 +1387,39 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
               </div>
             ))}
           </div>
+        </CardSection>
+      </Card>
+
+      {/* MCP server for AI assistants */}
+      <Card>
+        <CardSection>
+          <SectionLabel>MCP Server for AI Assistants</SectionLabel>
+          <style>{`
+            .aex-mcp-link { color: inherit; font-weight: 600; text-decoration: none; border-radius: 3px; }
+            .aex-mcp-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+            .aex-mcp-link:focus-visible, .aex-mcp-copy:focus-visible { outline: 2px solid rgba(59, 167, 240, 0.45); outline-offset: 2px; }
+          `}</style>
+          <p style={bodyText}>
+            Arc Agents MCP brings ERC-8004 data on Arc directly to AI assistants through the{' '}
+            <code style={{
+              fontFamily: T.mono, fontSize: 12, color: T.ink, background: T.bgWell,
+              border: `1px solid ${T.border}`, borderRadius: 5, padding: '1px 5px',
+            }}>get_agent_data</code>{' '}tool.
+          </p>
+          <p style={{ ...bodyText, marginTop: 8 }}>
+            Open-source MCP server with x402 v2 payments - $0.002 USDC per successful request on Arc Mainnet or Base Mainnet.
+          </p>
+          <p style={{ ...bodyText, marginTop: 8, marginBottom: 14, color: T.ink3 }}>
+            {MCP_LINKS.map((l, i) => (
+              <span key={l.label}>
+                {i > 0 && <span aria-hidden style={{ margin: '0 8px', color: T.ink4 }}>·</span>}
+                <a className="aex-mcp-link" href={l.href} target="_blank" rel="noopener noreferrer" style={{ color: accent.color }}>
+                  {l.label}
+                </a>
+              </span>
+            ))}
+          </p>
+          <McpInstallBlock accent={accent} />
         </CardSection>
       </Card>
 
