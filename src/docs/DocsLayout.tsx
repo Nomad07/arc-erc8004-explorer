@@ -2,7 +2,7 @@
  * Shell for the documentation pages: top navigation, desktop sidebar, compact mobile navigation,
  * scroll-spy and per-page metadata (title, description, canonical).
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { T, getAccent } from '@/design'
 
@@ -29,7 +29,7 @@ const PAGES = [
 ]
 
 const TOP_LINKS: Array<{ label: string; href: string; page?: 'api' | 'mcp'; external?: boolean }> = [
-  { label: 'Docs', href: '/docs', page: 'api' },
+  { label: 'API', href: '/docs', page: 'api' },
   { label: 'MCP', href: '/docs/mcp', page: 'mcp' },
   { label: 'OpenAPI', href: '/api/openapi.json', external: true },
   { label: 'GitHub', href: GITHUB, external: true },
@@ -66,8 +66,24 @@ function usePageMeta(title: string, description: string, path: string) {
   }, [title, description, path])
 }
 
-/** Id of the heading currently nearest the top of the viewport. */
-function useActiveSection(idList: string[]) {
+/** True when the desktop layout (fixed sidebar, scrolling content pane) is active. */
+function useIsDesktop() {
+  const [desktop, setDesktop] = useState(() => window.matchMedia('(min-width: 960px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 960px)')
+    const onChange = () => setDesktop(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return desktop
+}
+
+/**
+ * Id of the heading currently nearest the top of the visible content.
+ * Desktop: the content pane is the scroll container, so it is the observer root.
+ * Mobile: the page itself scrolls, so the viewport is the root (minus the sticky bars).
+ */
+function useActiveSection(idList: string[], paneRef: RefObject<HTMLDivElement | null>, desktop: boolean) {
   const key = idList.join('|')
   const [active, setActive] = useState<string>(idList[0] ?? '')
   useEffect(() => {
@@ -83,10 +99,14 @@ function useActiveSection(idList: string[]) {
         const [first] = [...visible.entries()].sort((a, b) => a[1] - b[1])
         setActive(first[0])
       }
-    }, { rootMargin: '-72px 0px -65% 0px', threshold: 0 })
+    }, {
+      root: desktop ? paneRef.current : null,
+      rootMargin: desktop ? '0px 0px -65% 0px' : '-72px 0px -65% 0px',
+      threshold: 0,
+    })
     els.forEach(el => io.observe(el))
     return () => io.disconnect()
-  }, [key])
+  }, [key, desktop, paneRef])
   return active
 }
 
@@ -124,7 +144,8 @@ const CSS = `
   .adoc-nav a:hover { color: ${T.ink}; background: ${T.bgInner}; }
   .adoc-nav a.is-active { color: ${ACCENT.color}; background: ${ACCENT.dim}; border-color: ${ACCENT.border}; }
   .adoc-shell { max-width: 1120px; margin: 0 auto; padding: 28px 20px 72px; display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 48px; }
-  .adoc-side { position: sticky; top: 84px; align-self: start; max-height: calc(100dvh - 104px); overflow-y: auto; padding-right: 4px; }
+  .adoc-side { overflow-y: auto; padding-right: 4px; scrollbar-width: none; -ms-overflow-style: none; }
+  .adoc-side::-webkit-scrollbar { display: none; }
   .adoc-side-label { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: ${T.ink3}; margin: 0 0 8px 10px; }
   .adoc-page-links { display: flex; flex-direction: column; gap: 2px; margin-bottom: 18px; }
   .adoc-page-links a { padding: 8px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: ${T.ink2}; text-decoration: none; border: 1px solid transparent; }
@@ -135,6 +156,25 @@ const CSS = `
   .adoc-side-link.is-active { color: ${ACCENT.color}; border-left-color: ${ACCENT.color}; }
   .adoc-side-sub { font-size: 12.5px; }
   .adoc-main { min-width: 0; max-width: 760px; }
+  .adoc-pane { min-width: 0; }
+  .adoc-pane:focus-visible { outline: 2px solid rgba(59,167,240,0.45); outline-offset: -2px; }
+  /* Desktop: the sidebar stays in place and only the content pane scrolls. */
+  @media (min-width: 960px) {
+    .adoc-root { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .adoc-top { position: relative; flex-shrink: 0; }
+    .adoc-shell {
+      flex: 1 1 auto; min-height: 0; width: 100%; max-width: none; margin: 0; padding: 0; gap: 0;
+      display: flex; align-items: stretch;
+    }
+    .adoc-side {
+      flex: 0 0 auto; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
+      width: calc(max(0px, (100vw - 1120px) / 2) + 20px + 232px + 28px);
+      padding: 28px 28px 28px max(20px, calc((100vw - 1120px) / 2 + 20px));
+    }
+    .adoc-pane { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 28px 20px 72px 20px; }
+    .adoc-main { margin: 0; }
+    .adoc-pane [id] { scroll-margin-top: 20px !important; }
+  }
   .adoc-kv-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; }
   .adoc-mobile-toc { display: none; }
   .adoc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -173,9 +213,23 @@ const CSS = `
 export function DocsLayout({ page, title, description, path, sections, children }: DocsPageProps) {
   usePageMeta(title, description, path)
   const ids = sections.flatMap(s => [s.id, ...(s.children?.map(c => c.id) ?? [])])
-  const active = useActiveSection(ids)
+  const desktop = useIsDesktop()
+  const paneRef = useRef<HTMLDivElement>(null)
+  const sideRef = useRef<HTMLElement>(null)
+  const active = useActiveSection(ids, paneRef, desktop)
   const tocRef = useRef<HTMLDetailsElement>(null)
   const activeLabel = [...sections, ...sections.flatMap(s => s.children ?? [])].find(s => s.id === active)?.label ?? sections[0]?.label
+
+  // Keep the active item visible when the sidebar itself needs to scroll (long section lists).
+  useEffect(() => {
+    if (!desktop) return
+    const link = sideRef.current?.querySelector<HTMLElement>('.adoc-side-link.is-active')
+    const side = sideRef.current
+    if (!link || !side) return
+    const l = link.getBoundingClientRect(), s = side.getBoundingClientRect()
+    if (l.top < s.top + 40) side.scrollTop -= s.top + 40 - l.top
+    else if (l.bottom > s.bottom - 24) side.scrollTop += l.bottom - (s.bottom - 24)
+  }, [active, desktop])
 
   // A deep link such as /docs/mcp#claude-code: the target only exists after this page renders.
   useEffect(() => {
@@ -191,7 +245,7 @@ export function DocsLayout({ page, title, description, path, sections, children 
           <a className="adoc-brand" href="/docs" aria-label="Arc Agents documentation">
             <img src="/favicon.svg" alt="" width={24} height={24} />
             <span className="adoc-brand-name">Arc Agents</span>
-            <span className="adoc-brand-tag">Docs</span>
+            <span className="adoc-brand-tag">{page === 'mcp' ? 'MCP' : 'API'}</span>
           </a>
           <nav className="adoc-nav" aria-label="Documentation">
             {TOP_LINKS.map(l => (
@@ -209,7 +263,7 @@ export function DocsLayout({ page, title, description, path, sections, children 
       </header>
 
       <div className="adoc-shell">
-        <aside className="adoc-side" aria-label="Page navigation">
+        <aside className="adoc-side" aria-label="Page navigation" ref={sideRef}>
           <div className="adoc-side-label">Documentation</div>
           <div className="adoc-page-links">
             {PAGES.map(p => (
@@ -220,6 +274,10 @@ export function DocsLayout({ page, title, description, path, sections, children 
           <SectionList sections={sections} active={active} />
         </aside>
 
+        <div
+          className="adoc-pane" ref={paneRef}
+          {...(desktop ? { tabIndex: 0, role: 'region', 'aria-label': 'Documentation content' } : {})}
+        >
         <main className="adoc-main">
           <details className="adoc-mobile-toc" ref={tocRef}>
             <summary>
@@ -242,6 +300,7 @@ export function DocsLayout({ page, title, description, path, sections, children 
             <a href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub</a>
           </footer>
         </main>
+        </div>
       </div>
     </div>
   )
