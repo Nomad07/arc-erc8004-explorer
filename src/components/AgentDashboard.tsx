@@ -9,6 +9,7 @@ import { useReadContract, useReadContracts } from 'wagmi'
 import { useState, useEffect, useCallback } from 'react'
 import { Copy, Check } from 'lucide-react'
 import { requireChain, buildAddressExplorerUrl } from '@/onchain-facts'
+import { T, getAccent } from '@/design'
 
 // ─── Network configs ──────────────────────────────────────────────────────────
 
@@ -125,49 +126,6 @@ function formatScore(value: bigint, decimals: number): string {
   if (decimals === 0) return value.toString()
   const d = BigInt(10 ** decimals)
   return `${value / d}.${(value % d).toString().padStart(decimals, '0')}`
-}
-
-// ─── Design tokens ────────────────────────────────────────────────────────────
-
-// Base palette
-const T = {
-  // Backgrounds — graphite surfaces
-  bg:        '#0b0c0e',
-  bgNav:     'rgba(11,12,14,0.9)',
-  bgCard:    '#111316',
-  bgHero:    '#14161a',
-  bgInner:   '#17191d',
-  bgWell:    '#0e1013',
-
-  // Borders
-  border:    'rgba(255,255,255,0.08)',
-  borderMid: 'rgba(255,255,255,0.12)',
-
-  // Text
-  ink:       '#ecedef',
-  ink2:      '#a0a4ab',
-  ink3:      '#7a7f87',
-  ink4:      '#4d5159',
-
-  // Semantic
-  green:     '#59c98a',
-  greenDim:  'rgba(89,201,138,0.09)',
-  greenB:    'rgba(89,201,138,0.22)',
-  red:       '#f87171',
-  redDim:    'rgba(248,113,113,0.08)',
-  redB:      'rgba(248,113,113,0.18)',
-
-  // Fonts
-  mono:    "'JetBrains Mono', 'Fira Mono', Menlo, monospace",
-  display: "'Space Grotesk', sans-serif",
-  body:    "'DM Sans', sans-serif",
-}
-
-// Network-aware accent — call once in AgentDashboard, thread down
-function getAccent(isMainnet: boolean) {
-  return isMainnet
-    ? { color: '#3ba7f0', dim: 'rgba(59,167,240,0.11)', border: 'rgba(59,167,240,0.28)', glow: 'rgba(59,167,240,0.06)' }
-    : { color: '#8fa6c4', dim: 'rgba(143,166,196,0.10)', border: 'rgba(143,166,196,0.24)', glow: 'rgba(143,166,196,0.06)' }
 }
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
@@ -1241,7 +1199,6 @@ const MCP_INSTALL_COMMAND = 'npx -y arcagents-mcp@1.0.1'
 const MCP_LINKS = [
   { label: 'GitHub',              href: 'https://github.com/Nomad07/arcagents-mcp' },
   { label: 'npm',                 href: 'https://www.npmjs.com/package/arcagents-mcp' },
-  { label: 'Official MCP Registry', href: 'https://registry.modelcontextprotocol.io/?q=arcagents-mcp' },
 ]
 
 /** Terminal-style install command with syntax colours and a one-click copy button. */
@@ -1418,6 +1375,10 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
                 </a>
               </span>
             ))}
+            <span aria-hidden style={{ margin: '0 8px', color: T.ink4 }}>·</span>
+            <a className="aex-mcp-link" href="/docs/mcp" style={{ color: accent.color, whiteSpace: 'nowrap' }}>
+              MCP Documentation →
+            </a>
           </p>
           <McpInstallBlock accent={accent} />
         </CardSection>
@@ -1502,13 +1463,19 @@ function ExplorerOverview({ activeIndex, accent }: { activeIndex: number; accent
             'No paid Testnet API is offered or needed: Testnet agents are free to inspect in the Explorer.',
             'An agent that does not exist is not charged.',
           ]} />
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '4px 16px' }}>
             <a
               href={PAID_API.openApiPath}
               target="_blank" rel="noopener noreferrer"
               style={{ fontSize: 12, fontWeight: 600, color: accent.color, textDecoration: 'none', fontFamily: T.body }}
             >
               OpenAPI specification ↗
+            </a>
+            <a
+              className="aex-mcp-link" href="/docs"
+              style={{ fontSize: 12, color: accent.color, fontFamily: T.body, marginLeft: 'auto', whiteSpace: 'nowrap' }}
+            >
+              API Documentation →
             </a>
           </div>
         </CardSection>
@@ -1677,6 +1644,23 @@ export function AgentDashboard() {
 
         {/* Right: live + selector + refresh */}
         <div className="aex-nav-controls">
+          {/* Beside the controls on wider screens; pinned to the card's top-right corner on phones, where the row has no room */}
+          <style>{`
+            .aex-nav-top { position: relative; }
+            @media (max-width: 560px) { .aex-docs-link { position: absolute; top: 14px; right: 16px; } }
+          `}</style>
+          <a
+            href="/docs"
+            title="API and MCP documentation"
+            className="aex-docs-link"
+            style={{
+              display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 11px', borderRadius: 8, flexShrink: 0,
+              background: T.bgInner, border: `1px solid ${T.border}`, color: T.ink2,
+              fontSize: 12, fontWeight: 600, fontFamily: T.body, textDecoration: 'none',
+            }}
+          >
+            Docs
+          </a>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '3px 9px', borderRadius: 100,
