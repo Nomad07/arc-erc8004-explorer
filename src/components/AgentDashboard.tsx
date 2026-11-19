@@ -1644,23 +1644,6 @@ export function AgentDashboard() {
 
         {/* Right: live + selector + refresh */}
         <div className="aex-nav-controls">
-          {/* Beside the controls on wider screens; pinned to the card's top-right corner on phones, where the row has no room */}
-          <style>{`
-            .aex-nav-top { position: relative; }
-            @media (max-width: 560px) { .aex-docs-link { position: absolute; top: 14px; right: 16px; } }
-          `}</style>
-          <a
-            href="/docs"
-            title="API and MCP documentation"
-            className="aex-docs-link"
-            style={{
-              display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 11px', borderRadius: 8, flexShrink: 0,
-              background: T.bgInner, border: `1px solid ${T.border}`, color: T.ink2,
-              fontSize: 12, fontWeight: 600, fontFamily: T.body, textDecoration: 'none',
-            }}
-          >
-            Docs
-          </a>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '3px 9px', borderRadius: 100,
