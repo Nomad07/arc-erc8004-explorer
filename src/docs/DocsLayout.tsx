@@ -298,6 +298,9 @@ export function DocsLayout({ page, title, description, path, sections, children 
             <a href="/">Explorer</a>
             <a href="/api/openapi.json" target="_blank" rel="noopener noreferrer">OpenAPI</a>
             <a href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <span style={{ flexBasis: '100%', textAlign: 'center', marginTop: 10, fontSize: 11, lineHeight: 1.5 }}>
+              © {new Date().getFullYear() || 2026} Arc Agents. All rights reserved.
+            </span>
           </footer>
         </main>
         </div>

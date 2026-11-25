@@ -1945,6 +1945,12 @@ export function AgentDashboard() {
             >X / Twitter</a>
           </span>
         </div>
+        <div style={{
+          marginTop: 10, textAlign: 'center', fontSize: 11, lineHeight: 1.5,
+          color: 'rgba(255,255,255,0.28)', letterSpacing: '0.03em',
+        }}>
+          © {new Date().getFullYear() || 2026} Arc Agents. All rights reserved.
+        </div>
       </div>
 
       {/* ── SCROLL TO TOP ───────────────────────────────────────────────── */}
